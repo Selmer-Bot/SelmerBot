@@ -3,7 +3,7 @@
 Authors: ION606, MajorDrools
 
 ### Node Packages Installation Instructions
-Download the _package.json_ file from the repo
+Download the _package.json_ file from the repo using
 `npm install`
 
 
