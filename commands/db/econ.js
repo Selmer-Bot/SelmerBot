@@ -141,8 +141,9 @@ function rank(dbo, interaction, xp_list) {
 
         let next = doc[0].rank + 1;
         let needed = xp_list.get(next);
-
-        interaction.channel.send(`<@${interaction.user.id}> you are currently at rank ${next-1} and have ${doc[0].xp}xp. You need ${needed - doc[0].xp} more xp to get to rank ${next}`);
+        
+        const tempmsg = `<@${interaction.user.id}> you are currently at rank ${next-1} and have ${doc[0].xp}xp. You need ${needed - doc[0].xp} more xp to get to rank ${next}`;
+        interaction.reply(tempmsg).catch(() => { interaction.channel.send(tempmsg); });
     });
 }
 

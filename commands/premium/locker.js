@@ -1,0 +1,1 @@
+//Securely store stuff in (use node-wallet?)
