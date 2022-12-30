@@ -24,8 +24,6 @@ function checkResponses(convoOG, answer) {
     } else if (b == 'name') {
         return ('My name is Selmer Bot!');
     } else { return null; }
-
-    return b;
 }
 
 module.exports = { checkResponses }

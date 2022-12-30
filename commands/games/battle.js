@@ -1,5 +1,5 @@
 //@ts-check
-const { MessageActionRow, MessageButton, MessageSelectMenu, Client, CommandInteractionOptionResolver } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, Client } = require('discord.js');
 const { STATE } = require('../db/econ');
 const { winGame, getCustomEmoji } = require('./external_game_functions.js');
 const { changeTurn } = require('../turnManager.js');
@@ -15,46 +15,46 @@ function postActionBar(thread, user_dbo) {
         let row;
         
         if (docs[0].gamesettings.battle.class != 'none' && docs[0].gamesettings.battle.ultimate) {
-            row = new MessageActionRow()
+            row = new ActionRowBuilder()
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('ATTACK')
                     .setLabel('ATTACK')
-                    .setStyle('DANGER'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
                     .setCustomId('HEAL')
                     .setLabel('HEAL')
-                    .setStyle('SUCCESS'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
                     .setCustomId('DEFEND')
                     .setLabel('DEFEND')
-                    .setStyle('PRIMARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
                     .setCustomId('ULTIMATE')
                     .setLabel('ULTIMATE')
-                    .setStyle('DANGER')
+                    .setStyle(ButtonStyle.Danger)
             );
         } else {
             //If the ultimate can't be used, change the menu
-            row = new MessageActionRow()
+            row = new ActionRowBuilder()
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('ATTACK')
                     .setLabel('ATTACK')
-                    .setStyle('DANGER'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
                     .setCustomId('HEAL')
                     .setLabel('HEAL')
-                    .setStyle('SUCCESS'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
                     .setCustomId('DEFEND')
                     .setLabel('DEFEND')
-                    .setStyle('PRIMARY'),
+                    .setStyle(ButtonStyle.Primary),
             );
         }
         /*
         //UNDER DEVELOPMENT
-        new MessageButton()
+        new ButtonBuilder()
             .setCustomId('ITEMS')
             .setLabel('ITEMS')
             .setStyle('SECONDARY')
@@ -180,9 +180,9 @@ async function heal(interaction, client, user_dbo, bot, thread, command, mongour
         
         
         //Find something to heal with
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
         .addComponents(
-            new MessageSelectMenu()
+            new StringSelectMenuBuilder()
                 .setCustomId(`${interaction.user.id}|heal`)
                 .setPlaceholder('Nothing selected')
                 .addOptions(itemlist),
@@ -219,9 +219,9 @@ function presentItems(interaction, client, user_dbo, bot, thread) {
         
         
         //Find something to heal with
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
         .addComponents(
-            new MessageSelectMenu()
+            new StringSelectMenuBuilder()
                 .setCustomId(`${interaction.user.id}|item`)
                 .setPlaceholder('Nothing selected')
                 .addOptions(itemlist)

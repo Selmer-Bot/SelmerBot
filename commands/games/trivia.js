@@ -60,7 +60,7 @@ function startTrivia(interaction, m, time, bot) {
     const answer = obj.answer;
 
     const filter = (response) => {
-        // return item.answers.some(answer => answer.toLowerCase() === response.content.toLowerCase());
+        // console.log(response.channel.messages.cache.get(response.id), answer);
         return (response.content.toLowerCase() == answer.toLowerCase());
     };
     

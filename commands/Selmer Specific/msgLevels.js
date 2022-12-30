@@ -1,4 +1,4 @@
-const { addxp, BASE } = require('../db/econ.js');
+const { addxp, BASE, CreateNewCollection } = require('../db/econ.js');
 
 
 async function setCard(bot, interaction) {
@@ -30,6 +30,8 @@ function textToLevels(bot, message, xp_list) {
             } else if (doc.enabled) {
                 const dbo = client.db(message.guild.id).collection(author.id);
                 dbo.findOne({"balance": {$exists: true}}).then((doc) => {
+                    if (!doc) { return CreateNewCollection(message, client, message.guild.id, message.author.id); }
+
                     const newXp = doc.xp + Math.ceil((BASE.XP * doc.rank) / 4);
                     addxp(bot, message, dbo, newXp, xp_list, true);
                 });

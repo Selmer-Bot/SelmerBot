@@ -1,6 +1,6 @@
 // const { joinVoiceChannel, createAudioResource } = require('@discordjs/voice');
 const { VoiceConnectionStatus, AudioPlayerStatus, createAudioPlayer, StreamType,  joinVoiceChannel, createAudioResource, getVoiceConnection } = require('@discordjs/voice');
-const { MessageActionRow, MessageButton, MessageEmbed, Constants } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 const play = require('play-dl');
 const { getPlaylistUrls } = require('./addPlaylist.js');
 const { verPremium } = require('../premium/verifyPremium.js');
@@ -116,11 +116,11 @@ async function playStopEmbed(bot, interaction, yt_info, stopped, message = null)
     } else {
         const author = {
             name: "Selmer Bot",
-            url: "",
+            url: bot.inviteLink,
             iconURL: bot.user.displayAvatarURL()
           }
         
-          const newEmbed = new MessageEmbed()
+          const newEmbed = new EmbedBuilder()
           .setColor('#0F00F0')
           .setTitle(`${yt_info.video_details.title}`)
           .setAuthor(author)
@@ -128,20 +128,20 @@ async function playStopEmbed(bot, interaction, yt_info, stopped, message = null)
           .setURL(yt_info.video_details.url)
           .setThumbnail(yt_info.video_details.thumbnails[0].url);
         
-          const row = new MessageActionRow()
+          const row = new ActionRowBuilder()
           .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('PAUSE')
                     .setLabel('⏸️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('STOP')
                     .setLabel('⏹️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('SKIP')
                     .setLabel('⏭️')
-                    .setStyle('SECONDARY')
+                    .setStyle(ButtonStyle.Secondary)
           );
         
 
@@ -192,22 +192,22 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
             em = message.embeds[0];
         }
         
-        var rows = [new MessageActionRow()];
+        var rows = [new ActionRowBuilder()];
 
         if (command == "pause") {
             rows[0].addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('RESUME')
                     .setLabel('▶️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('STOP')
                     .setLabel('⏹️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('SKIP')
                     .setLabel('⏭️')
-                    .setStyle('SECONDARY')
+                    .setStyle(ButtonStyle.Secondary)
             );
             
             em.description = 'IS NOW PAUSED';
@@ -215,18 +215,18 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
 
         } else if (command == "resume") {
             rows[0].addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('PAUSE')
                     .setLabel('⏸️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('STOP')
                     .setLabel('⏹️')
-                    .setStyle('SECONDARY'),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('SKIP')
                     .setLabel('⏭️')
-                    .setStyle('SECONDARY')
+                    .setStyle(ButtonStyle.Secondary)
             );
             
             em.description = 'IS NOW PLAYING';
@@ -310,7 +310,7 @@ function playNext(interaction, bot, message = null) {
     var msg = message;
     if (!message) {
         msg = interaction.message;
-        interaction.update({ embeds: [ new MessageEmbed(interaction.message.embeds[0]).setDescription("IS NOW STOPPED") ], components: []});
+        interaction.update({ embeds: [ new EmbedBuilder(interaction.message.embeds[0]).setDescription("IS NOW STOPPED") ], components: []});
     }
 
     playStopEmbed(bot, interaction, yt_info, false, msg);
@@ -402,26 +402,26 @@ function showQueue(bot, isUpdate, interaction = null, page = 0) {
     //Create the embed
     const author = {
         name: "Selmer Bot",
-        url: "",
+        url: bot.inviteLink,
         iconURL: bot.user.displayAvatarURL()
     }
 
-    const newEmbed = new MessageEmbed()
+    const newEmbed = new EmbedBuilder()
     .setTitle("SONG QUEUE")
     .setAuthor(author)
     .setDescription(songList[page])
     .setFooter({ text: `Page ${page + 1}` })
 
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder()
     .addComponents(
-        new MessageButton()
+        new ButtonBuilder()
             .setCustomId(`audioQueue|${page - 1}`)
             .setLabel('⬅️')
-            .setStyle('SECONDARY'),
-        new MessageButton()
+            .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
             .setCustomId(`audioQueue|${page + 1}`)
             .setLabel('➡️')
-            .setStyle('SECONDARY'),
+            .setStyle(ButtonStyle.Secondary),
         
     )
 
@@ -454,10 +454,10 @@ function removeFromQueue(bot, interaction, posStr) {
     
     bot.audioData.set(guildId, data);
 
-    const newEmbed = new MessageEmbed()
+    const newEmbed = new EmbedBuilder()
     .setColor('#0F00F0')
     .setTitle(`${details.title}`)
-    .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+    .setAuthor({ name: "Selmer Bot", iconURL: bot.user.displayAvatarURL() })
     .setDescription( `has been removed from position ${pos + 1} in queue!`)
     .setThumbnail(details.thumbnails[0].url);
 
@@ -574,26 +574,26 @@ module.exports = {
         }
     }, pause_start_stop, playNext, showQueue,
     options: [
-        {name: 'play', description: 'play a song', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, options: [
-            {name: 'video', description: 'The song URL/search term(s)', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-            {name: 'playlist', description: 'The playlist URL', type: Constants.ApplicationCommandOptionTypes.STRING, required: false}
+        {name: 'play', description: 'play a song', type: ApplicationCommandOptionType.Subcommand, options: [
+            {name: 'video', description: 'The song URL/search term(s)', type: ApplicationCommandOptionType.String, required: false},
+            {name: 'playlist', description: 'The playlist URL', type: ApplicationCommandOptionType.String, required: false}
         ]},
     
-        {name: 'pause', description: 'Pause the currently playing song', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
+        {name: 'pause', description: 'Pause the currently playing song', type: ApplicationCommandOptionType.Subcommand},
 
-        {name: 'queue', description: 'Show the song queue', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
+        {name: 'queue', description: 'Show the song queue', type: ApplicationCommandOptionType.Subcommand},
 
-        {name: 'remove', description: 'Remove a song from the queue', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, options: [
-            {name: 'position', description: 'The song\'s position in queue', type: Constants.ApplicationCommandOptionTypes.INTEGER, required: true}
+        {name: 'remove', description: 'Remove a song from the queue', type: ApplicationCommandOptionType.Subcommand, options: [
+            {name: 'position', description: 'The song\'s position in queue', type: ApplicationCommandOptionType.Integer, required: true}
         ]},
+        
+        {name: 'resume', description: 'Resume playing the current song', type: ApplicationCommandOptionType.Subcommand},
 
-        {name: 'resume', description: 'Resume playing the current song', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
+        {name: 'shuffle', description: 'Shuffle the song queue', type: ApplicationCommandOptionType.Subcommand},
 
-        {name: 'shuffle', description: 'Shuffle the song queue', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
+        {name: 'skip', description: 'skip the current song', type: ApplicationCommandOptionType.Subcommand},
 
-        {name: 'skip', description: 'skip the current song', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
-
-        {name: 'stop', description: 'stop the music and clear the queue', type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND},
+        {name: 'stop', description: 'stop the music and clear the queue', type: ApplicationCommandOptionType.Subcommand},
         
         //Actions left: remove, shuffle, 
     ]

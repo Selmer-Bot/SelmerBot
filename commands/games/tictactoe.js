@@ -1,7 +1,7 @@
 // @ts-check
 
 const wait = require('node:timers/promises').setTimeout;
-const { MessageActionRow, MessageButton, MessageSelectMenu, Client, CommandInteractionOptionResolver } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, CommandInteractionOptionResolver } = require('discord.js');
 const { STATE } = require('../db/econ');
 const { winGame, getCustomEmoji } = require('./external_game_functions.js');
 const { changeTurn } = require('../turnManager.js');
@@ -64,37 +64,37 @@ function isTerminal(board) {
 
 
 //I know it's sloppy, but when 'initial' is true, 'interaction' will actually be 'thread'
-function postActionBar(interaction, user_dbo, board, won, initial = false) {
+function postActionBar(interaction, user_dbo, board, symbol, won, initial = false) {
     let componentlist = [];
-    let newRow = new MessageActionRow();
+    let newRow = new ActionRowBuilder();
 
     for (let i = 0; i < 9; i ++) {
         let button;
         
         if (!won) {
             if (!board[i]) {
-                button = new MessageButton()
+                button = new ButtonBuilder()
                 .setCustomId(`ttt|${i}`)
                 .setLabel('-')
-                .setStyle('SUCCESS')
+                .setStyle(ButtonStyle.Success)
             } else {
-                button = new MessageButton()
+                button = new ButtonBuilder()
                 .setCustomId(`ttt|${i}`)
                 .setLabel(board[i])
-                .setStyle('DANGER')
+                .setStyle(ButtonStyle.Danger)
                 .setDisabled(true);
             }
         } else {
-            if (i in won.nums) {
-                button = new MessageButton()
+            if (won.nums.includes(i)) {
+                button = new ButtonBuilder()
                 .setCustomId(`ttt|${i}`)
                 .setLabel('W')
-                .setStyle('SUCCESS')
+                .setStyle(ButtonStyle.Success)
             } else {
-                button = new MessageButton()
+                button = new ButtonBuilder()
                 .setCustomId(`ttt|${i}`)
                 .setLabel('F')
-                .setStyle('DANGER')
+                .setStyle(ButtonStyle.Danger)
                 .setDisabled(true);
             }
         }
@@ -104,16 +104,16 @@ function postActionBar(interaction, user_dbo, board, won, initial = false) {
         if ((i + 1) % 3 == 0) {
             //Add the row to the list of rows
             componentlist.push(newRow);
-            newRow = new MessageActionRow();
+            newRow = new ActionRowBuilder();
         }
     }
 
     // console.log(componentlist);
 
     if (initial) {
-        interaction.send({ content: `Your turn <@${user_dbo.s.namespace.collection}>!`, components: componentlist });
+        interaction.send({ content: `Your turn <@${user_dbo.s.namespace.collection}> (you are ${symbol})!`, components: componentlist });
     } else {
-        interaction.update({ content: `Your turn <@${user_dbo.s.namespace.collection}>!`, components: componentlist });
+        interaction.update({ content: `Your turn <@${user_dbo.s.namespace.collection}> (you are ${symbol})!`, components: componentlist });
     }
 }
 
@@ -122,7 +122,7 @@ async function handle(client, db, dbo, other, bot, thread, command, doc, interac
     
     if (command == 'initalize') {
         let board = ["", "", "", "", "", "", "", "", ""];
-        postActionBar(thread, dbo, board, false,true);
+        postActionBar(thread, dbo, board, "X", false, true);
     } else {
         //Change the board
         let square = Number(interaction.customId.split('|')[1]);
@@ -138,13 +138,15 @@ async function handle(client, db, dbo, other, bot, thread, command, doc, interac
         
         if (!won) {
             changeTurn(client, bot, interaction);
-            postActionBar(interaction, other, board, false);
+            postActionBar(interaction, other, board, doc.symbols[Number(!doc.turn)], false);
             changeTurn(client, bot, interaction);
         } else {
-            postActionBar(interaction, dbo, board, won);
+            postActionBar(interaction, dbo, board, Number(!doc.turn), won);
             
             //Maybe add a "close board" button instead of this
-            await wait(7000);
+            interaction.channel.send(`\`Thread closing \`<t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
+        
+            await wait(10000);
             winGame(client, bot, db, dbo, xp_collection, interaction.message);
         }
     }

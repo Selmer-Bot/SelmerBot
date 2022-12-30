@@ -1,7 +1,7 @@
 // // @ts-check //Disabled
 
 // Maybe have the interaction type be "user" https://canary.discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types
-const { MessageActionRow, MessageButton, Message } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Message } = require('discord.js');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 let ecoimport = require("../db/econ.js");
 
@@ -375,24 +375,24 @@ module.exports ={
                 if (game == 'battle' || commandName == 'battle') {
                     if (!bot.inDebugMode) { return interaction.reply("This command is currently in development!"); }
                     
-                    const row = new MessageActionRow()
+                    const row = new ActionRowBuilder()
                     .addComponents(
-                        new MessageButton()
+                        new ButtonBuilder()
                         .setCustomId(`gameaccept|${command.options[0].value}|${interaction.user.id}`)
                         .setLabel('Accept Invite')
-                        .setStyle('SUCCESS')
+                        .setStyle(ButtonStyle.Success)
                     );
 
                     const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Tic Tac Toe"_. Click the button to accept the invitation!`, components: [row]};
                     interaction.reply(content).catch((err) => interaction.channel.send(content));
 
                 } else if (game == 'Tic Tac Toe' || commandName == 'Tic Tac Toe') {
-                    const row = new MessageActionRow()
+                    const row = new ActionRowBuilder()
                     .addComponents(
-                        new MessageButton()
+                        new ButtonBuilder()
                         .setCustomId(`gameaccept|${command.options[0].value}|${interaction.user.id}`)
                         .setLabel('Accept Invite')
-                        .setStyle('SUCCESS')
+                        .setStyle(ButtonStyle.Success)
                     );
 
                     const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Tic Tac Toe"_. Click the button to accept the invitation!`, components: [row]};

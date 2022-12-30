@@ -2,7 +2,7 @@ module.exports = {
     name: "profile",
     description: "Posts a description of Monsieur Sleemer himself",
     execute(interaction, Discord, Client, bot) {
-        const newEmbed = new Discord.MessageEmbed()
+        const newEmbed = new Discord.EmbedBuilder()
         .setColor('#002eff')
         .setTitle('My professional resume')
         //.setURL('https://discordjs.guide/popular-topics/embeds.html#embed-preview')

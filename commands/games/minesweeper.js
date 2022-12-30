@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, Interaction } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction } = require('discord.js');
 const { winGame, loseGame, equipItem } = require('./external_game_functions.js');
 const wait = require('node:timers/promises').setTimeout;
 const { STATE } = require('../db/econ.js')
@@ -24,11 +24,11 @@ function startGame(bot, channel, interaction) {
     }
 
     for (let i = 0; i < 5; i ++) {
-        const row = new MessageActionRow();
+        const row = new ActionRowBuilder();
 
         for (let j = 0; j < 5; j ++) {
             //customId = (spot in row)|(spot in column)
-            const btn = new MessageButton();
+            const btn = new ButtonBuilder();
             const isbmb = (Math.random() > (0.70 - diff));
 
             if (isbmb) {
@@ -38,7 +38,7 @@ function startGame(bot, channel, interaction) {
             }
             
             btn.setLabel('?')
-            .setStyle('SECONDARY')
+            .setStyle(ButtonStyle.Secondary)
             row.addComponents(btn);
         }
 
@@ -57,15 +57,16 @@ function gameOver(interaction, won = false) {
     return new Promise((resolve, reject) => {
         for (i in components) {
             for (j in components[i].components) {
+                var tempBtn = ButtonBuilder.from(components[i].components[j]);
                 if (components[i].components[j].customId.split("|")[3] === 't') {
-                    components[i].components[j].label = "💣";
-                    components[i].components[j].style = "DANGER";
+                    tempBtn.setLabel("💣");
+                    tempBtn.setStyle(ButtonStyle.Danger);
                 } else {
-                    components[i].components[j].style = "SUCCESS";
-                    components[i].components[j].label = "5";
+                    tempBtn.setLabel("5");
+                    tempBtn.setStyle(ButtonStyle.Success);
                 }
 
-                components[i].components[j].setDisabled(true);
+                components[i].components[j] = tempBtn.setDisabled(true);
             }
         }
 
@@ -105,15 +106,19 @@ async function changeBoard(bot, interaction, xp_collection) {
         bot.mongoconnection.then((client) => { client.db(interaction.guildId).collection(interaction.user.id).updateOne({ game: {$exists: true} }, { $set: { game: null } }); });
         const channel = bot.channels.cache.get(interaction.message.channel.parentId);
         channel.send(`${interaction.user} found a bomb in Minesweeper!`);
-        interaction.channel.send(`\`Thread closing\` <t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
+        interaction.channel.send(`\`Thread closing \`<t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
         
-        await wait(7000);
+        await wait(10000);
         interaction.channel.delete();
     } else {
-        btn.setDisabled(true);
-        btn.label = "1";
-        btn.style = "SUCCESS";
-        components[col].components[row] = btn;
+        const btnNew = ButtonBuilder.from(btn)
+        .setDisabled(true)
+        .setLabel("1")
+        .setStyle(ButtonStyle.Success)
+        // btn.setDisabled(true);
+        // btn.label = "1";
+        // btn.style = "SUCCESS";
+        components[col].components[row] = btnNew;
 
         let content = interaction.message.content;
         let score = Number(content.split('`')[1]);

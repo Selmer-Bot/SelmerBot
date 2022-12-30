@@ -1,7 +1,6 @@
 //@ts-check
 const { log, SEVCODES } = require('../log.js');
 const { checkRole } = require('./verify.js');
-const { Constants } = require('discord.js');
 
 
 function modHelp() {

@@ -1,4 +1,4 @@
-const { Modal, TextInputComponent, MessageActionRow, MessageButton, MessageEmbed, Interaction } = require('discord.js');
+const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Interaction } = require('discord.js');
 
 
 /**
@@ -8,43 +8,41 @@ function postEmbd(bot, desc, interaction, page, isGuild, id, refered) {
     try {
         const author = {
             name: "Selmer Bot",
-            url: "",
+            url: bot.inviteLink,
             iconURL: bot.user.displayAvatarURL()
         };
 
-        const newEmbed = new MessageEmbed()
+        const newEmbed = new EmbedBuilder()
             .setTitle("REMINDERS")
             .setAuthor(author)
             .setDescription(desc[page])
             .setFooter({ text: `Page ${page + 1}` });
 
 
-        const row = new MessageActionRow();
+        const row = new ActionRowBuilder();
         //Make sure the page is never < 1
-        const prevbtn = new MessageButton()
-            .setCustomId(`reminderQueue|${isGuild}-${id}|`)
+        const prevbtn = new ButtonBuilder()
             .setLabel('⬅️')
-            .setStyle('SECONDARY')
+            .setStyle(ButtonStyle.Secondary)
 
         if (page <= 0) {
-            prevbtn.customId += `0`;
+            prevbtn.setCustomId(`reminderQueue|${isGuild}-${id}|0`);
             // prevbtn.setCustomId(`reminderQueue|${isGuild}-${id}|0`);
             prevbtn.setDisabled(true);
         } else {
-            prevbtn.customId += `${page - 1}`;
+            prevbtn.setCustomId(`reminderQueue|${isGuild}-${id}|${page - 1}`)
         }
 
-        const nextbtn = new MessageButton()
-            .setCustomId(`reminderQueue|${isGuild}-${id}|`)
+        const nextbtn = new ButtonBuilder()
             .setLabel('➡️')
-            .setStyle('SECONDARY');
+            .setStyle(ButtonStyle.Secondary);
 
         if ((page + 1) >= desc.length) {
-            nextbtn.customId += `${desc.length}`;
+            nextbtn.setCustomId(`reminderQueue|${isGuild}-${id}|${desc.length}`);
             // nextbtn.setCustomId(`reminderQueue|`);
             nextbtn.setDisabled(true);
         } else {
-            nextbtn.customId += `${page + 1}`;
+            nextbtn.setCustomId(`reminderQueue|${isGuild}-${id}|${page + 1}`);
         }
 
         row.addComponents(prevbtn, nextbtn);
@@ -63,7 +61,7 @@ function postEmbd(bot, desc, interaction, page, isGuild, id, refered) {
 
 async function postForm(interaction, isGuild = false) {
     // Create the modal
-    const modal = new Modal();
+    const modal = new ModalBuilder();
 
     if (!isGuild) {
         modal.setTitle('Creating a New Personal Reminder')
@@ -79,42 +77,42 @@ async function postForm(interaction, isGuild = false) {
     // Short means only a single line of text
     // Paragraph means multiple lines of text
 
-    const nameInp = new TextInputComponent()
+    const nameInp = new TextInputBuilder()
     .setCustomId('name')
     .setLabel("What is the Event's name?")
-    .setStyle('SHORT');
+    .setStyle('Short');
 
-    const descInp = new TextInputComponent()
+    const descInp = new TextInputBuilder()
     .setCustomId('description')
     .setLabel("What's the event's description?")
-    .setStyle('PARAGRAPH');
+    .setStyle('Paragraph');
     
-    const dateInp = new TextInputComponent()
+    const dateInp = new TextInputBuilder()
     .setCustomId('date')
     .setLabel("What's the event's date?")
     .setPlaceholder('1/1/2020')
-    .setStyle('SHORT');
+    .setStyle('Short');
 
-    const timeInp = new TextInputComponent()
+    const timeInp = new TextInputBuilder()
     .setCustomId('time')
     .setLabel("What's the event's time?")
     .setPlaceholder("2:00 PM or 14:00")
-    .setStyle('SHORT');
+    .setStyle('Short');
 
 
-    const locurlinp = new TextInputComponent()
+    const locurlinp = new TextInputBuilder()
     .setCustomId('locationwurl')
     .setLabel("Where is the event happening?")
     .setPlaceholder('To add a URL, simply use location;url (the seperator is a semi-colon)')
-    .setStyle('SHORT');
+    .setStyle('Short');
 
     // An action row only holds one text input,
     // so you need one action row per text input.
-    const name = new MessageActionRow().addComponents(nameInp);
-    const desc = new MessageActionRow().addComponents(descInp);
-    const date = new MessageActionRow().addComponents(dateInp);
-    const time = new MessageActionRow().addComponents(timeInp);
-    const offset = new MessageActionRow().addComponents(locurlinp);
+    const name = new ActionRowBuilder().addComponents(nameInp);
+    const desc = new ActionRowBuilder().addComponents(descInp);
+    const date = new ActionRowBuilder().addComponents(dateInp);
+    const time = new ActionRowBuilder().addComponents(timeInp);
+    const offset = new ActionRowBuilder().addComponents(locurlinp);
 
     // Add inputs to the modal
     modal.addComponents(name, desc, date, time, offset);
@@ -328,8 +326,8 @@ function processForm(bot, interaction) {
         }
 
         temp = `***${name}*** is coming up in <t:${timeUTC/1000}:R> on <t:${timeUTC/1000}:F>`;
-        const embd = new MessageEmbed()
-        .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+        const embd = new EmbedBuilder()
+        .setAuthor({ name: "Selmer Bot", url: bot.inviteLink, iconURL: bot.user.displayAvatarURL() })
         .setTitle(temp)
         .setDescription(`Description: ${desc}`)
         .addFields(
@@ -394,33 +392,33 @@ module.exports = {
                 //Only available to Selmer Bot devs, testers and "authorized" users
                 if (docs[0] != undefined) {
                     //Execute the command
-                    const row = new MessageActionRow()
+                    const row = new ActionRowBuilder()
 
                     if (interaction.channel.type == 'DM') {
                         row.addComponents(
-                            new MessageButton()
+                            new ButtonBuilder()
                                 .setCustomId(`newEvent|User|${interaction.user.id}`)
                                 .setLabel('New Personal Reminder')
-                                .setStyle('SUCCESS'),
-                            new MessageButton()
+                                .setStyle(ButtonStyle.Success),
+                            new ButtonBuilder()
                                 .setCustomId('getEvents')
                                 .setLabel('See Personal Reminders')
-                                .setStyle('PRIMARY'),
+                                .setStyle(ButtonStyle.Primary),
                         );
                     } else {
                         row.addComponents(
-                            new MessageButton()
+                            new ButtonBuilder()
                                 .setCustomId(`newEvent|User|${interaction.user.id}`)
                                 .setLabel('New Personal Reminder')
-                                .setStyle('SUCCESS'),
-                            new MessageButton()
+                                .setStyle(ButtonStyle.Success),
+                            new ButtonBuilder()
                                 .setCustomId('newEvent|Guild')
                                 .setLabel('New Guild Reminder')
-                                .setStyle('SUCCESS'),
-                            new MessageButton()
+                                .setStyle(ButtonStyle.Success),
+                            new ButtonBuilder()
                                 .setCustomId('getEvents')
                                 .setLabel('See Guild Reminders')
-                                .setStyle('PRIMARY'),
+                                .setStyle(ButtonStyle.Primary),
                         );
                     }
 

@@ -2,7 +2,7 @@
 
 const { verPremium } = require('../premium/verifyPremium.js');
 const { ICalParser, VCalendar, VEvent, VTodo, VAlarm } = require('cozy-ical');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 const { getEvents } = require('./reminders.js');
 
 async function formatEvents(interaction, docs) {
@@ -69,6 +69,6 @@ module.exports = {
         });
     },
     options: [
-        {name: 'is_guild', description: 'Is this export for your reminders or guild reminders?', type: Constants.ApplicationCommandOptionTypes.BOOLEAN, required: true},
+        {name: 'is_guild', description: 'Is this export for your reminders or guild reminders?', type: ApplicationCommandOptionType.Boolean, required: true},
     ]
 }

@@ -28,7 +28,7 @@ function log(bot, interaction, command, mentioned, reason, severity) {
             else if (command.endsWith('n')) { action = (command + 'ned'); }
             else { action = (command + 'ed'); }
             
-            const newEmbed = new Discord.MessageEmbed()
+            const newEmbed = new Discord.EmbedBuilder()
             .setColor(col_list[severity])
             .setTitle(`User ${mentioned.username}#${mentioned.discriminator} has been ${action}`)
             //.setURL('https://discordjs.guide/popular-topics/embeds.html#embed-preview')

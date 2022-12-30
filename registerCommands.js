@@ -1,4 +1,4 @@
-const {Client, Constants} = require('discord.js');
+const {Client, ApplicationCommandOptionType, ApplicationCommandType} = require('discord.js');
 
 /**
  * Registers all slash commands
@@ -25,6 +25,7 @@ function registerCommands(bot) {
                     commands.create({
                         name: val.name,
                         description: val.description,
+                        type: ApplicationCommandType.ChatInput,
                         options: val.options,
                         dm_permission: true,
                     });
@@ -32,6 +33,7 @@ function registerCommands(bot) {
                     commands.create({
                         name: val.name,
                         description: val.description,
+                        type: ApplicationCommandType.ChatInput,
                         options: val.options,
                         dm_permission: false,
                     });
@@ -51,6 +53,7 @@ function registerCommands(bot) {
             commands.create({
                 name: commandName,
                 description: command.description,
+                type: ApplicationCommandType.ChatInput,
                 options: command.options || [],
                 dm_permission: false,
             });
@@ -62,13 +65,14 @@ function registerCommands(bot) {
         const modList = ['lock', 'unlock', 'kick', 'ban', 'unban', 'mute', 'unmute'];
         for (let i = 0; i < modList.length; i++) {
             const opts = [
-                {name: "user", description: `The user to ${modList[i]}`, type: Constants.ApplicationCommandOptionTypes.USER, required: true},
-                {name: "reason", description: "Why?", type: Constants.ApplicationCommandOptionTypes.STRING, required: false}
+                {name: "user", description: `The user to ${modList[i]}`, type: ApplicationCommandOptionType.User, required: true},
+                {name: "reason", description: "Why?", type: ApplicationCommandOptionType.String, required: false}
             ];
 
             commands.create({
                 name: modList[i],
                 description: `${modList[i]} a user`,
+                type: ApplicationCommandType.ChatInput,
                 options: opts,
                 dm_permission: false,
                 default_member_permissions: 6,
@@ -84,27 +88,27 @@ function registerCommands(bot) {
         guild.commands.create({
             name: "admin",
             description: "admin commands",
-            // type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+            type: ApplicationCommandType.ChatInput,
             options: [
                 {
                     name: "setpresence",
                     description: "Change the bot's presence",
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
-                        {name: "pres_text", description: "The new presence text", type: Constants.ApplicationCommandOptionTypes.STRING, required: true },
-                        {name: "type", description: "The new presence text", type: Constants.ApplicationCommandOptionTypes.STRING, required: true, choices: [
+                        {name: "pres_text", description: "The new presence text", type: ApplicationCommandOptionType.String, required: true },
+                        {name: "type", description: "The new presence text", type: ApplicationCommandOptionType.String, required: true, choices: [
                             {name: "LISTENING", value: "LISTENING"}, {name: "WATCHING", value: "WATCHING"}, {name: "COMPETING", value: "COMPETING"}, {name: "PLAYING", value: "PLAYING"}, { name: "STREAMING", value: "STREAMING"}
                         ]},
-                        {name: 'display_name', description: "What to display instead of the stream's title", type: Constants.ApplicationCommandOptionTypes.STRING, required: false}
+                        {name: 'display_name', description: "What to display instead of the stream's title", type: ApplicationCommandOptionType.String, required: false}
                     ],
                     dm_permission: false
                 },
                 {
                     name: "setactivity",
                     description: "Change the bot's activity",
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
-                        {name: "type", description: "The new presence text", type: Constants.ApplicationCommandOptionTypes.STRING, required: true, choices: [
+                        {name: "type", description: "The new presence text", type: ApplicationCommandOptionType.String, required: true, choices: [
                             {name: "Do Not Disturb", value: "dnd"}, {name: "Idle", value: "idle"}, {name: "invisible", value: "invisible"}, {name: "online", value: "online"}
                         ]},
                     ],
@@ -123,6 +127,8 @@ function registerCommands(bot) {
             options: gameOpts,
             dm_permission: false
         }).then(() => {
+            return resolve(true);
+            
             if (!bot.inDebugMode) { return resolve(true); }
 
             commands.create({

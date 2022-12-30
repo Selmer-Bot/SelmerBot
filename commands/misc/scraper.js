@@ -1,6 +1,6 @@
 const hastebin = require("hastebin-gen");
 const { addComplaintButton } = require('../dev only/submitcomplaint');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 const { URL } = require("url");
 const axios = require('axios');
 const { isValidUrl } = require('../dev only/setPresence.js');
@@ -45,7 +45,7 @@ module.exports ={
             }
           });
     },
-    options: [{name: 'url', description: 'The website URL', type: Constants.ApplicationCommandOptionTypes.STRING, required: true }]
+    options: [{name: 'url', description: 'The website URL', type: ApplicationCommandOptionType.String, required: true }]
 }
 
 //TEST: https://www.karaoketexty.cz/texty-pisni/zoegirl/plain-170199

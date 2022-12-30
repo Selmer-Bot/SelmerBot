@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu, CommandInteractionOptionResolver } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, CommandInteractionOptionResolver } = require('discord.js');
 const axios = require('axios');
 const cheerio = require('cheerio');
 var FeedParser = require('feedparser');
@@ -106,28 +106,28 @@ function playAudio(bot, message, user, obj) {
     player.play(resource);
 
     //Create the embed
-    const newEmbed = new MessageEmbed()
+    const newEmbed = new EmbedBuilder()
         .setColor('#0F00F0')
         .setTitle(`${obj.title}`)
-        .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+        .setAuthor({ name: "Selmer Bot", url: bot.inviteLink, iconURL: bot.user.displayAvatarURL() })
         .setDescription('IS NOW PLAYING')
         .setURL(obj.url)
         .setThumbnail(obj.thumbnal);
     
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('PAUSE')
                 .setLabel('⏸️')
-                .setStyle('SECONDARY'),
-            new MessageButton()
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
                 .setCustomId('STOP')
                 .setLabel('⏹️')
-                .setStyle('SECONDARY'),
-            // new MessageButton()
+                .setStyle(ButtonStyle.Secondary),
+            // new ButtonBuilder()
             //     .setCustomId('SKIP')
             //     .setLabel('⏭️')
-            //     .setStyle('SECONDARY')
+            //     .setStyle(ButtonStyle.Secondary)
         );
     console.log(obj.audioLink);
     const m = message.reply({ embeds: [newEmbed], components: [row] });
@@ -207,9 +207,9 @@ async function getAndFormatRSS(bot, message, user, inp) {
         return console.log(item);
     }
     
-    //   const newEmbed = new MessageEmbed()
+    //   const newEmbed = new EmbedBuilder()
     //     .setTitle(feed.title)
-    //     .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+    //     .setAuthor({ name: "Selmer Bot", url: bot.inviteLink, iconURL: bot.user.displayAvatarURL() })
     //     .setTimestamp()
 
     // console.log(feed.items);
@@ -267,9 +267,9 @@ function presentFeeds(bot, message, commands, interaction) {
         keyList.push(listEntry);
     });
 
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder()
         .setComponents(
-            new MessageSelectMenu()
+            new StringSelectMenuBuilder()
             .setCustomId(`RSS|${commands.join('|')}`)
             .setPlaceholder('Nothing selected')
             .addOptions(keyList)

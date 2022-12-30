@@ -51,7 +51,7 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                                 interaction.editReply(`<@${interaction.user.id}> used _${interaction.customId.toLowerCase()}_!`);
                             }
                         } else {
-                            console.log("It's not your turn!");
+                            // interaction.channel.send({content: "It's not your turn!", ephemeral: true});
                         }
                     });
                 });
@@ -68,7 +68,7 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                         
                         bot.commands.get('game').in_game_redirector(bot, interaction, threadname, doc, client, mongouri, items, xp_collection, board);
                     } else {
-                        console.log("It's not your turn!");
+                        // interaction.channel.send({content: "It's not your turn!", ephemeral: true});
                     }
                 });
             } else if (musicCommandList.indexOf(interaction.customId) != -1 || interaction.customId.indexOf('audioQueue|') != -1) {
@@ -106,7 +106,7 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
     }
 
     //Menu Selection
-    else if (interaction.isSelectMenu()) {
+    else if (interaction.isStringSelectMenu()) {
         const id = interaction.customId.substring(0, interaction.customId.indexOf('|'))
         // const command = interaction.customId.substring(interaction.customId.indexOf('|'), interaction.customId.length - interaction.customId.indexOf('|'))
         
@@ -137,7 +137,7 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                             await interaction.message.delete();
                             
                         } else {
-                            console.log("It's not your turn!");
+                            // interaction.channel.send({content: "It's not your turn!", ephemeral: true});
                         }
                     });
                 });

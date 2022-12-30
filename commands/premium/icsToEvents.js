@@ -1,6 +1,6 @@
 const { ICalParser } = require('cozy-ical');
 const { URL } = require('url');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 const request = require('request');
 const { verPremium } = require('../premium/verifyPremium.js');
 const { isValidUrl } = require('../dev only/setPresence.js');
@@ -235,7 +235,7 @@ module.exports = {
         });
     },
     options: [
-        {name: 'ics_file', description: 'The ics file to input', type: Constants.ApplicationCommandOptionTypes.ATTACHMENT, required: true},
+        {name: 'ics_file', description: 'The ics file to input', type: ApplicationCommandOptionType.Attachment, required: true},
     ],
     isDm: true
 }

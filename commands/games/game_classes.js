@@ -1,6 +1,6 @@
 //Leave this as it's own file in case I want to expand the classes in the future
 
-const { MessageActionRow, MessageSelectMenu } = require("discord.js");
+const { ActionRowBuilder, StringSelectMenuBuilder } = require("discord.js");
 
 
 //#region multiplayer games
@@ -67,9 +67,9 @@ function presentClasses(message, game) {
         classList.push({label: n, description: `${c.description}`, value: `${n}`});
     });
 
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder()
     .addComponents(
-        new MessageSelectMenu()
+        new StringSelectMenuBuilder()
             .setCustomId(`${message.author.id}|class`)
             .setPlaceholder('none')
             .addOptions(classList)

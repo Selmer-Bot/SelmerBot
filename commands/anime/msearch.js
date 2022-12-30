@@ -1,4 +1,4 @@
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const scraper = require('mal-scraper');
 const search = scraper.search;
 const type = "manga";
@@ -24,16 +24,16 @@ module.exports = {
             }).then((data1) => {
                 let data = data1[0];
                 if (style == "stats") {
-                    const newEmbed = new Discord.MessageEmbed()
+                    const newEmbed = new EmbedBuilder()
                     .setColor('#ff9900')
-                    .setTitle(data.title)
+                    .setTitle(data.title || "N/A")
                     .setURL(data.url)
                     .setImage(data.thumbnail)
                     //.setDescription('My professional resume')
                     .addFields(
-                        {name: 'Type:', value: data.type},
-                        {name: 'Score:', value: data.score},
-                        {name: 'Volumes:', value: data.vols}
+                        {name: 'Type:', value: data.type || "N/A"},
+                        {name: 'Score:', value: data.score || "N/A"},
+                        {name: 'Volumes:', value: data.vols || "N/A"}
                     );
                     
                     interaction.reply({ embeds: [newEmbed] });
@@ -53,7 +53,7 @@ module.exports = {
                 }
             });
         } catch (err) {
-            if (err.message.indexOf('MessageEmbed field values must be non-empty strings') != -1) {
+            if (err.message.indexOf('field values must be non-empty strings') != -1) {
                 interaction.reply(`Insufficient information on website!\nThe page can be found here: ${data.url}`);
             } else {
                 const m = interaction.reply("Uh oh, an unknown error occured, click the ✅ to report this!");
@@ -67,6 +67,6 @@ module.exports = {
             console.log(err);
         }
     },
-    options: [{name: 'manga', description: 'The name of the manga', type: Constants.ApplicationCommandOptionTypes.STRING, required: true}, {name: 'style', description: 'stats or fancy or summary (defaults to stats)', type: Constants.ApplicationCommandOptionTypes.STRING, required: false, choices: [ { name: 'stats', value: 'stats' }, { name: 'fancy', value: 'fancy' }, {name: 'summary', value: 'summary'} ] }]
+    options: [{name: 'manga', description: 'The name of the manga', type: ApplicationCommandOptionType.String, required: true}, {name: 'style', description: 'stats or fancy or summary (defaults to stats)', type: ApplicationCommandOptionType.String, required: false, choices: [ { name: 'stats', value: 'stats' }, { name: 'fancy', value: 'fancy' }, {name: 'summary', value: 'summary'} ] }]
 
 }

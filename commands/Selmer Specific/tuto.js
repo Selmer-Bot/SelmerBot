@@ -1,5 +1,5 @@
 // @ts-check
-const { MessageActionRow, MessageButton, MessageEmbed, Interaction } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 
 //Intro, setup/logging, Econ, Moderation, anime/manga, games, Selmer Specific, Misc, DMS/Premium
 const tutoText = [
@@ -20,12 +20,12 @@ const tutoText = [
 function postEmbd(bot, interaction, page, refered) {
     const author = {
         name: "Selmer Bot",
-        url: "",
+        url: bot.inviteLink,
         iconURL: bot.user.displayAvatarURL()
     };
 
     //Tutorial Embed
-    const te = new MessageEmbed();
+    const te = new EmbedBuilder();
     te.setAuthor(author)
         .setTitle("Selmer Bot Tutorial")
         .setDescription(tutoText[page])
@@ -37,30 +37,29 @@ function postEmbd(bot, interaction, page, refered) {
         te.setImage('https://github.com/ION606/selmerBot/blob/main/assets/Sleemer_Bringsjorgend.png?raw=true');
     }
 
-    const row = new MessageActionRow();
+    const row = new ActionRowBuilder();
     //Make sure the page is never < 1
-    const prevbtn = new MessageButton()
-        .setCustomId(`tutoQueue|`)
+    const prevbtn = new ButtonBuilder()
         .setLabel('⬅️')
-        .setStyle('SECONDARY');
+        .setStyle(ButtonStyle.Secondary);
 
     if (page <= 0) {
-        prevbtn.customId += `0`;
+        prevbtn.setCustomId(`tutoQueue|0`)
         prevbtn.setDisabled(true);
     } else {
-        prevbtn.customId += `${page - 1}`;
+        prevbtn.setCustomId(`tutoQueue|${page - 1}`);
     }
 
-    const nextbtn = new MessageButton()
+    const nextbtn = new ButtonBuilder()
         .setCustomId(`tutoQueue|`)
         .setLabel('➡️')
-        .setStyle('SECONDARY');
+        .setStyle(ButtonStyle.Secondary);
 
     if ((page + 1) >= tutoText.length) {
-        nextbtn.customId += `${tutoText.length}`;
+        nextbtn.setCustomId(`tutoQueue|${tutoText.length}`);
         nextbtn.setDisabled(true);
     } else {
-        nextbtn.customId += `${page + 1}`;
+        nextbtn.setCustomId(`tutoQueue|${page + 1}`);
     }
 
     row.addComponents(prevbtn, nextbtn);

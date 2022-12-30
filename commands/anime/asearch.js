@@ -1,4 +1,4 @@
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const scraper = require('mal-scraper');
 
 
@@ -20,20 +20,21 @@ module.exports = {
 
         //When set to true, getInfoFromName.getBestMatch did not, in fact, return the best results
         scraper.getInfoFromName(name, false).then((data) => {
-            try { console.log(data);
+            try {
+                console.log(data);
                 if (style == 'stats') {
-                    const newEmbed = new Discord.MessageEmbed()
+                    const newEmbed = new EmbedBuilder()
                     .setColor('#002eff')
-                    .setTitle(data.title)
+                    .setTitle(data.title || "N/A")
                     //.setURL('https://discordjs.guide/popular-topics/embeds.html#embed-preview')
                     //.setDescription('My professional resume')
-                    .setImage(data.picture)
+                    .setImage(data.picture || "N/A")
                     .addFields(
-                        {name: 'Genres:', value: data.genres.join(", ")},
-                        {name: 'Score:', value: data.score},
-                        {name: 'Episode:', value: data.episodes},
-                        {name: "Date Aired/Premiered", value: data.premiered || data.aired}
-                    ).setURL(data.trailer);
+                        {name: 'Genres:', value: data.genres.join(", ") || "N/A"},
+                        {name: 'Score:', value: data.score || "N/A"},
+                        {name: 'Episode:', value: data.episodes || "N/A"},
+                        {name: "Date Aired/Premiered", value: data.premiered || data.aired || "N/A"}
+                    ).setURL(data.trailer || "");
                     
                     interaction.reply({ embeds: [newEmbed] });
                 } else if (style == 'fancy') {
@@ -45,7 +46,7 @@ module.exports = {
                     temp += `You can see a trailer for ${data.title} ***[here](${data.trailer})***`;
                     // temp += `\n\n(to see a summary of the anime, use '${bot.prefix}asearch <anime name> summary')`;
                     
-                    interaction.reply({ embeds: [new Discord.MessageEmbed().setImage(data.picture).setDescription(temp)] });
+                    interaction.reply({ embeds: [new EmbedBuilder().setImage(data.picture).setDescription(temp)] });
                     // message.channel.send(temp);
                 } else if (style == 'summary') {
                     let temp = data.synopsis;
@@ -54,7 +55,7 @@ module.exports = {
                     interaction.reply(`Unknown command, try using the format '/asearch <anime name> [stats or fancy or summary]`);
                 }
             } catch (err) {
-                if (err.message.indexOf('MessageEmbed field values must be non-empty strings') != -1) {
+                if (err.message.indexOf('field values must be non-empty strings') != -1) {
                     interaction.reply(`Insufficient information on website!\nThe page can be found here: ${data.url}`);
                 } else {
                     const m = interaction.reply("Uh oh, an unknown error occured, click the ✅ to report this!");
@@ -71,7 +72,7 @@ module.exports = {
         });
     },
     options: [
-        {name: 'anime', description: 'The name of the anime', type: Constants.ApplicationCommandOptionTypes.STRING, required: true},
-        {name: 'style', description: 'stats or fancy or summary (defaults to stats)', type: Constants.ApplicationCommandOptionTypes.STRING, required: false, choices: [ { name: 'stats', value: 'stats' }, { name: 'fancy', value: 'fancy' }, {name: 'summary', value: 'summary'} ] }
+        {name: 'anime', description: 'The name of the anime', type: ApplicationCommandOptionType.String, required: true},
+        {name: 'style', description: 'stats or fancy or summary (defaults to stats)', type: ApplicationCommandOptionType.String, required: false, choices: [ { name: 'stats', value: 'stats' }, { name: 'fancy', value: 'fancy' }, {name: 'summary', value: 'summary'} ] }
     ]
 }

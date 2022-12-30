@@ -1,5 +1,5 @@
 const { modHelp } = require('../admin/moderation.js');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 
 //CHANGE THIS TO FORMS?
 module.exports ={
@@ -84,5 +84,5 @@ module.exports ={
 
         interaction.reply({ content: temp, ephemeral: true });
     },
-    options: [{name: 'command', description: 'econ, game, or admin', type: Constants.ApplicationCommandOptionTypes.STRING, required: false, choices: [ { name: 'econ', value: 'econ' }, { name: 'game', value: 'game' }, {name: 'admin', value: 'admin'} ]}]
+    options: [{name: 'command', description: 'econ, game, or admin', type: ApplicationCommandOptionType.String, required: false, choices: [ { name: 'econ', value: 'econ' }, { name: 'game', value: 'game' }, {name: 'admin', value: 'admin'} ]}]
 }

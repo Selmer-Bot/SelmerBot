@@ -1,5 +1,5 @@
 //#region imports
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const Discord = require('discord.js');
 const { MongoClient, ServerApiVersion, GridFSBucket } = require('mongodb');
 const fs = require('fs');
@@ -59,18 +59,18 @@ if (process.env.token != undefined) {
 
 const bot = new Client({ 
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_VOICE_STATES,
-        Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-        Intents.FLAGS.GUILD_PRESENCES,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.DIRECT_MESSAGES,
-        Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
-        Intents.FLAGS.DIRECT_MESSAGE_TYPING,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.DirectMessageTyping,
     ],
-    partials: [ 'CHANNEL' ]
+    partials: [ Partials.Channel ]
 });
 
 const prefix = '!';
@@ -124,12 +124,14 @@ process.on("SIGTERM", (signal) => {
     bot.user.setStatus('invisible');
 });
 
+
 process.on("SIGINT", (signal) => {
     console.log(`Process ${process.pid} has been interrupted`);
     backupLists(bot, IDM);
     // process.exit(0);
     bot.user.setStatus('invisible');
 });
+
 
 process.on('uncaughtException', (signal) => {
     //Check if this was the last err and if so, ignore
@@ -264,11 +266,11 @@ bot.on('interactionCreate', async interaction => {
     if (!botIsReady) {
         return interaction.reply("The bot is still warming up. This is process can take up to 5 minutes. Please try again in a bit! \:(");
     }
-    // console.log(bot.lockedChannels);
-    //Slash commands
-    if (interaction.isApplicationCommand()) {
 
-        if (interaction.isUserContextMenu()) {
+    //Slash commands
+    if (interaction.isChatInputCommand()) {
+
+        if (interaction.isUserContextMenuCommand()) {
             return handleContext(bot, interaction.options.data[0]);
         }
 
@@ -434,6 +436,8 @@ bot.on('messageCreate', (message) => {
     //Special case, testing server (still need the emojis and error logging)
     if (!bot.inDebugMode && message.guild.id == bot.home_server) { return; }
 
+    if (message.author.bot) { return; }
+
     if (message.mentions.has(bot.user.id)) {
         if (message.content == `<@${bot.user.id}>`) {
             return message.reply("What?");
@@ -441,9 +445,6 @@ bot.on('messageCreate', (message) => {
             return replies(bot, message);
         }
     }
-
-    //Check if the prefix exists
-    if (message.author.bot) { return; }
 
     if (message.content.startsWith(prefix)) {
         //Game section (too complicated to move to Slash Commands)

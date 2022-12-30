@@ -1,14 +1,14 @@
-const { MessageActionRow, MessageButton, MessageEmbed, DiscordAPIError, Message } = require('discord.js');
-const complaintRow = new MessageActionRow();
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, DiscordAPIError, Message } = require('discord.js');
+const complaintRow = new ActionRowBuilder();
 const green = '#00f035';
 const red = '#f30000';
 
 
 complaintRow.setComponents(
-    new MessageButton()
+    new ButtonBuilder()
         .setCustomId('SUBMITCOMPLAINT')
         .setLabel('Submit Complaint')
-        .setStyle('DANGER') //Maybe change this to 'PRIMARY'
+        .setStyle(ButtonStyle.Danger) //Maybe change this to 'PRIMARY'
 );
 
 
@@ -18,27 +18,27 @@ function submitComplaint(message, bot) {
 
     const author = {
         name: "Selmer Bot",
-        url: "",
+        url: bot.inviteLink,
         iconURL: bot.user.displayAvatarURL()
     }
 
-    const newEmbed = new MessageEmbed()
+    const newEmbed = new EmbedBuilder()
           .setColor(red)
           .setTitle(`Submitted by _${message.author.username}#${message.author.discriminator} ${message.author}_ in *${message.guild}* (OPEN)`)
           .setAuthor(author)
           .setDescription(`Content: ${complaint}`)
           .setTimestamp();
         
-    const row = new MessageActionRow()
+    const row = new ActionRowBuilder()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('DEBUGDONE')
                 .setLabel('Done')
-                .setStyle('SUCCESS'),
-            new MessageButton()
+                .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
                 .setCustomId('DEBUGURGENT')
                 .setLabel('Mark as Urgent')
-                .setStyle('DANGER'),
+                .setStyle(ButtonStyle.Danger),
         );
 
     channel.send({ embeds: [newEmbed], components: [row] });
@@ -47,19 +47,19 @@ function submitComplaint(message, bot) {
 
 function resolveComplaint(interaction) {
     if (interaction.customId == 'DEBUGDONE') {
-        var embd = new MessageEmbed(interaction.message.embeds[0]);
+        var embd = new EmbedBuilder(interaction.message.embeds[0]);
         embd.setColor(green);
         embd.title = embd.title.replace('(OPEN)', '(CLOSED)').replace('(URGENT)', '(CLOSED)');
         interaction.update({ embeds: [embd], components: [] });
         interaction.message.unpin();
     } else {
-        var embd = new MessageEmbed(interaction.message.embeds[0]);
-        const row = new MessageActionRow();
+        var embd = new EmbedBuilder(interaction.message.embeds[0]);
+        const row = new ActionRowBuilder();
         row.addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('DEBUGDONE')
                 .setLabel('Done')
-                .setStyle('SUCCESS'),
+                .setStyle(ButtonStyle.Success),
         );
 
         embd.title = embd.title.replace('(OPEN)', '(URGENT)');

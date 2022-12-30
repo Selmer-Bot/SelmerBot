@@ -1,5 +1,5 @@
 // https://ponly.com/200-pick-up-lines/
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 
 const cheesy = [
     'If I said you had a good body would you hold it against me?',
@@ -309,5 +309,5 @@ module.exports = {
             interaction.channel.send(arr[keyInd]);
         }
     },
-    options: [{name: 'type', description: 'Pick the genre of line or take a chance with random!', type: Constants.ApplicationCommandOptionTypes.STRING, required: true, choices: [{name: "cheesy", value: "cheesy"}, {name: "funny", value: "funny"}, {name: "smooth", value: "smooth"}, {name: "best", value: "best"}, {name: "anime", value: "anime"}, {name: "random", value: "random"}, {name: "sources", value: "sources"} ] }]
+    options: [{name: 'type', description: 'Pick the genre of line or take a chance with random!', type: ApplicationCommandOptionType.String, required: true, choices: [{name: "cheesy", value: "cheesy"}, {name: "funny", value: "funny"}, {name: "smooth", value: "smooth"}, {name: "best", value: "best"}, {name: "anime", value: "anime"}, {name: "random", value: "random"}, {name: "sources", value: "sources"} ] }]
 }

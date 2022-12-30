@@ -1,6 +1,6 @@
 //@ts-check
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 const { CreateNewCollection } = require("../db/econ");
 const { checkRole } = require('./verify.js');
 const fetch = require('node-fetch');
@@ -182,21 +182,21 @@ module.exports = {
     description: 'Set up server features',
     execute,
     options: [
-        {name: 'welcome_channel', description: 'Sets the channel for welcome messages', type: Constants.ApplicationCommandOptionTypes.CHANNEL },
-        {name: 'welcome_message', description: 'Use {un}, {ud}, {ut}, and {sn} for username, user descriminator, user tag, and server name', type: Constants.ApplicationCommandOptionTypes.STRING },
-        {name: 'welcome_banner', description: 'Sets the welcome banner', type: Constants.ApplicationCommandOptionTypes.ATTACHMENT},
-        {name: 'welcome_text_color', description: 'Sets the welcome banner text color', type: Constants.ApplicationCommandOptionTypes.STRING},
-        {name: 'keep_logs', description: 'Toggles logging', type: Constants.ApplicationCommandOptionTypes.BOOLEAN },
-        {name: 'log_channel', description: 'Sets the logging channel', type: Constants.ApplicationCommandOptionTypes.CHANNEL },
-        {name: 'log_severity', description: 'Sets the logging Severity (logs this/lower tiers)', type: Constants.ApplicationCommandOptionTypes.STRING, choices: [{name: 'none', value: 'none'}, {name: 'low', value: 'low'}, {name: 'medium', value: 'medium'}, {name: 'high', value: 'high'}] },
-        {name: 'ping_role', description: 'Sets the role to be pinged for reminders', type: Constants.ApplicationCommandOptionTypes.ROLE},
-        {name: 'ping_channel', description: 'Sets the channel for reminders', type: Constants.ApplicationCommandOptionTypes.CHANNEL},
-        {name: 'add_mod_role', description: 'Make a role into an admin role for Selmer Bot, able to execute ALL Selmer Bot commands', type: Constants.ApplicationCommandOptionTypes.ROLE},
-        {name: 'remove_mod_role', description: 'Remove a Selmer Bot moderation role', type: Constants.ApplicationCommandOptionTypes.ROLE},
-        {name: 'toggle_leveling', description: 'Enable or Disable the leveling system', type: Constants.ApplicationCommandOptionTypes.BOOLEAN},
-        {name: 'leveling_banner', description: 'Set the card background for the leveling system', type: Constants.ApplicationCommandOptionTypes.ATTACHMENT},
-        {name: 'leveling_text', description: 'Use {un}, {ud}, {ut}, {sn}, and {r} for username, descriminator, user tag, server name, and rank', type: Constants.ApplicationCommandOptionTypes.STRING},
-        {name: 'leveling_color', description: 'Set the card text color for the leveling system', type: Constants.ApplicationCommandOptionTypes.STRING},
-        {name: 'help', description: 'in-app?', type: Constants.ApplicationCommandOptionTypes.BOOLEAN}
+        {name: 'welcome_channel', description: 'Sets the channel for welcome messages', type: ApplicationCommandOptionType.Channel },
+        {name: 'welcome_message', description: 'Use {un}, {ud}, {ut}, and {sn} for username, user descriminator, user tag, and server name', type: ApplicationCommandOptionType.String },
+        {name: 'welcome_banner', description: 'Sets the welcome banner', type: ApplicationCommandOptionType.Attachment},
+        {name: 'welcome_text_color', description: 'Sets the welcome banner text color', type: ApplicationCommandOptionType.String},
+        {name: 'keep_logs', description: 'Toggles logging', type: ApplicationCommandOptionType.Boolean },
+        {name: 'log_channel', description: 'Sets the logging channel', type: ApplicationCommandOptionType.Channel },
+        {name: 'log_severity', description: 'Sets the logging Severity (logs this/lower tiers)', type: ApplicationCommandOptionType.String, choices: [{name: 'none', value: 'none'}, {name: 'low', value: 'low'}, {name: 'medium', value: 'medium'}, {name: 'high', value: 'high'}] },
+        {name: 'ping_role', description: 'Sets the role to be pinged for reminders', type: ApplicationCommandOptionType.Role},
+        {name: 'ping_channel', description: 'Sets the channel for reminders', type: ApplicationCommandOptionType.Channel},
+        {name: 'add_mod_role', description: 'Make a role into an admin role for Selmer Bot, able to execute ALL Selmer Bot commands', type: ApplicationCommandOptionType.Role},
+        {name: 'remove_mod_role', description: 'Remove a Selmer Bot moderation role', type: ApplicationCommandOptionType.Role},
+        {name: 'toggle_leveling', description: 'Enable or Disable the leveling system', type: ApplicationCommandOptionType.Boolean},
+        {name: 'leveling_banner', description: 'Set the card background for the leveling system', type: ApplicationCommandOptionType.Attachment},
+        {name: 'leveling_text', description: 'Use {un}, {ud}, {ut}, {sn}, and {r} for username, descriminator, user tag, server name, and rank', type: ApplicationCommandOptionType.String},
+        {name: 'leveling_color', description: 'Set the card text color for the leveling system', type: ApplicationCommandOptionType.String},
+        {name: 'help', description: 'in-app?', type: ApplicationCommandOptionType.Boolean}
     ]
 }

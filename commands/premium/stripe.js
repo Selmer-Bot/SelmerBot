@@ -6,7 +6,7 @@ https://selmer-bot-listener.ion606.repl.co
 //@ts-check
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const { MessageActionRow, MessageSelectMenu, Constants } = require('discord.js');
+const { ActionRowBuilder, StringSelectMenuBuilder, ApplicationCommandOptionType } = require('discord.js');
 const { addComplaintButton } = require('../dev only/submitcomplaint');
 
 
@@ -67,7 +67,7 @@ async function createSubscriptionManual(bot, interaction, id, priceID) {
             cancel_url: "https://linktr.ee/selmerbot"
         });
 
-        interaction.editReply(session.url);
+        interaction.editReply({content: session.url, ephemeral: true});
     }).catch((err) => { 
         if (String(typeof(err)) == 'string') {
             interaction.editReply(err);
@@ -113,15 +113,16 @@ async function changeSubscriptionManual(bot, interaction) {
             customer: userID,
             return_url: "https://linktr.ee/selmerbot",
         }).then((session) => {
-            interaction.reply(session.url);
+            interaction.reply({content: session.url, ephemeral: true}).catch(() => {
+                interaction.channel.send({content: session.url, ephemeral: true});
+            });
         })
     }).catch((err) => {
-
         if (String(typeof(err)) == 'string') {
-            interaction.reply(err);
+            interaction.channel.send(err);
         } else {
             console.log(err);
-            interaction.reply("A Stripe error occured! Please click the ✅ to report this ASAP!");
+            interaction.channel.send("A Stripe error occured! Please click the ✅ to report this ASAP!");
             addComplaintButton(bot, interaction.message); //?????????
         }
     });
@@ -153,9 +154,9 @@ function createDropDown(bot, interaction) {
         });
 
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
         .addComponents(
-            new MessageSelectMenu()
+            new StringSelectMenuBuilder()
                 .setCustomId(`${interaction.user.id}|premium`)
                 .setPlaceholder('Nothing selected')
                 .addOptions(vl)
@@ -186,7 +187,7 @@ module.exports = {
         handleInp(bot, interaction);
     }, handleInp, createSubscriptionManual,
     options: [
-        {name: 'option', description: 'What do you want to do?', type: Constants.ApplicationCommandOptionTypes.STRING, required: true, choices: [{name: 'help', value: 'help'}, {name: 'buy', value: 'buy'}, {name: 'manage', value: 'manage'}]}
+        {name: 'option', description: 'What do you want to do?', type: ApplicationCommandOptionType.String, required: true, choices: [{name: 'help', value: 'help'}, {name: 'buy', value: 'buy'}, {name: 'manage', value: 'manage'}]}
     ],
     isDm: true
 }

@@ -1,4 +1,4 @@
-const {Interaction, Constants, Modal, TextInputComponent, MessageActionRow, MessageEmbed, MessageButton, Message} = require('discord.js');
+const {Interaction, ApplicationCommandOptionType, ModalBuilder, TextInputBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { checkRole } = require('./verify.js');
 const { isValidUrl } = require('../dev only/setPresence.js');
 const embdList = [{name: 'Title'}, {name: 'Image', desc: 'The image url'}, {name: 'Thumbnail', desc: 'The thumbnail url'}, {name: 'URL'}, {name: 'Description', desc: 'Use {ROLE} to insert the role'}];
@@ -6,13 +6,13 @@ const embdList = [{name: 'Title'}, {name: 'Image', desc: 'The image url'}, {name
 
 async function postForm(interaction, role, useEmoji, txt) {
     // Create the modal
-    const modal = new Modal();
+    const modal = new ModalBuilder();
 
     modal.setTitle('Create a new reaction role!')
     .setCustomId(`reactionModal|${role.id}|${useEmoji}|${txt}`);
 
     for (let i = 0; i < 5; i++) {
-        const tempInp = new TextInputComponent()
+        const tempInp = new TextInputBuilder()
         .setCustomId(embdList[i].name.toLowerCase())
         .setLabel(embdList[i].name);
 
@@ -26,7 +26,7 @@ async function postForm(interaction, role, useEmoji, txt) {
             tempInp.setPlaceholder(embdList[i].desc);
         }
 
-        modal.addComponents(new MessageActionRow().addComponents(tempInp));
+        modal.addComponents(new ActionRowBuilder().addComponents(tempInp));
     }
 
     // Show the modal to the user
@@ -39,7 +39,7 @@ async function postForm(interaction, role, useEmoji, txt) {
 function postNotif(interaction, roleId, guild, user) {
     const role = guild.roles.cache.get(roleId);
 
-    const embd = new MessageEmbed()
+    const embd = new EmbedBuilder()
     .setTitle("You got a new role!")
     .setDescription(`You were given the *${role.name}* role in **${guild}**\n_You did this by reacting to [this message](${interaction.message.url})_`)
     .setTimestamp()
@@ -72,7 +72,7 @@ function processForm(interaction, bot) {
         desc = desc.replaceAll("{ROLE}", `<@&${roleId}>`);
     }
 
-    const embd = new MessageEmbed()
+    const embd = new EmbedBuilder()
     .setTitle(title)
     .setDescription(desc || "");
 
@@ -106,14 +106,14 @@ function processForm(interaction, bot) {
             }
         });
     } else {
-        const btn = new MessageButton()
+        const btn = new ButtonBuilder()
         .setCustomId(`addRole|${roleId}`)
-        .setStyle('PRIMARY');
+        .setStyle(ButtonStyle.Primary);
 
         if (emoji) btn.setEmoji(emoji);
         else btn.setLabel(txt);
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
         .addComponents([btn]);
 
         interaction.channel.send({embeds: [embd], components: [row]})
@@ -175,8 +175,8 @@ module.exports = {
         });
     }, processForm, handleBtn,
     options: [
-        {name: "role", description: "The role to assign", type: Constants.ApplicationCommandOptionTypes.ROLE, required: true},
-        {name: "useemoji", description: 'React using a button or emoji', type: Constants.ApplicationCommandOptionTypes.BOOLEAN, required: true},
-        {name: 'text', description: 'The reaction emoji or button text', type: Constants.ApplicationCommandOptionTypes.STRING, required: true}
+        {name: "role", description: "The role to assign", type: ApplicationCommandOptionType.Role, required: true},
+        {name: "useemoji", description: 'React using a button or emoji', type: ApplicationCommandOptionType.Boolean, required: true},
+        {name: 'text', description: 'The reaction emoji or button text', type: ApplicationCommandOptionType.String, required: true}
     ]
 }

@@ -1,4 +1,4 @@
-const { MessageEmbed, Constants } = require('discord.js');
+const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 
 
 //!poll <name> <option 1, option 2> [option 3...option 10]
@@ -11,19 +11,19 @@ module.exports = {
         const timeList = [ '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟' ];
         const author = {
             name: "Selmer Bot",
-            url: "",
+            url: bot.inviteLink,
             iconURL: bot.user.displayAvatarURL()
         }
         const name = args.filter((arg) => { return (arg.name == 'question'); })[0].value;
 
-        const time = interaction.options.data.filter((arg) => { return (arg.name == 'time'); })[0].value;
+        var time = interaction.options.data.filter((arg) => { return (arg.name == 'time'); })[0].value;
         var temp;
         // var isTimed = !Number.isNaN(Number(args[1].split(":")[0]));
 
-        if (time != 0) {
+        if (!time) {
             temp = `This poll was created by ${interaction.user} and has no time limit!\n`;
         } else {
-            time += time * 60; // (Number(args[1].split(':')[0]) * 60) + Number(args[1].split(':')[1]);
+            time = time * 60; // (Number(args[1].split(':')[0]) * 60) + Number(args[1].split(':')[1]);
             temp = `This poll was created by ${interaction.user} and ends <t:${Math.floor((new Date()).getTime()/1000) + time}:R>!\n`;
         }
 
@@ -34,7 +34,7 @@ module.exports = {
             temp += `\n${timeList[i - 2]}: ${args[i].value}\n`;
         }
 
-        const embd = new MessageEmbed()
+        const embd = new EmbedBuilder()
         .setTimestamp()
         .setTitle(`${name}`)
         .setDescription(temp)
@@ -48,7 +48,7 @@ module.exports = {
                 msg.react(timeList[i]);
             }
 
-            if (!isTimed) {
+            if (!time) {
                 return;
             }
 
@@ -90,17 +90,17 @@ module.exports = {
         });
     },
     options: [
-        {name: 'question', description: 'The poll question...', type: Constants.ApplicationCommandOptionTypes.STRING, required: true},
-        {name: 'time', description: 'the time the poll is open for in minutes (for no limit input 0)', type: Constants.ApplicationCommandOptionTypes.INTEGER, required: true},
-        {name: 'option1', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: true},
-        {name: 'option2', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option3', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option4', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option5', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option6', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option7', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option8', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option9', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
-        {name: 'option10', description: 'A poll option', type: Constants.ApplicationCommandOptionTypes.STRING, required: false},
+        {name: 'question', description: 'The poll question...', type: ApplicationCommandOptionType.String, required: true},
+        {name: 'time', description: 'the time the poll is open for in minutes (for no limit input 0)', type: ApplicationCommandOptionType.Integer, required: true},
+        {name: 'option1', description: 'A poll option', type: ApplicationCommandOptionType.String, required: true},
+        {name: 'option2', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option3', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option4', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option5', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option6', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option7', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option8', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option9', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
+        {name: 'option10', description: 'A poll option', type: ApplicationCommandOptionType.String, required: false},
     ]
 }

@@ -1,6 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 // const { update } = require('apt');
-const { Collection, Client, Formatters, Intents, Interaction } = require('discord.js');
+const { Collection, Client, codeBlock, Intents, Interaction } = require('discord.js');
 const { CLIENT_ODBC } = require('mysql/lib/protocol/constants/client');
 const { time } = require('@discordjs/builders');
 const { welcome } = require('../admin/welcome.js');
@@ -339,7 +339,7 @@ function getShop(interaction, items, bot) {
     }
 
     const items2 = items.filter(function(f) { return (f.sect.toLowerCase() == type) }).slice((ind - 1)*10, (ind - 1)*10+10);
-    newText = Formatters.codeBlock(items2.map(i => `${i.icon} (${i.name}): $${i.cost}`).join('\n')); //${currencySymbol} doesn't owrk for some reason
+    newText = codeBlock(items2.map(i => `${i.icon} (${i.name}): $${i.cost}`).join('\n')); //${currencySymbol} doesn't owrk for some reason
 
     if (noinp) {
         newText += `(Use ${bot.prefix}shop [type] [page number] to access other pages)`;

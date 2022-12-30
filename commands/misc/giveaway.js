@@ -1,10 +1,10 @@
-const { Interaction, MessageActionRow, MessageButton, MessageEmbed, Modal, TextInputComponent } = require('discord.js');
+const { Interaction, ActionRowBuilder, EmbedBuilder, ModalBuilder, TextInputBuilder } = require('discord.js');
 const { checkRole } = require('../admin/verify.js');
 
 
 async function postForm(interaction) {
     // Create the modal
-    const modal = new Modal();
+    const modal = new ModalBuilder();
 
     modal.setTitle('Creating a new giveaway')
     .setCustomId('giveawayModal');
@@ -15,44 +15,44 @@ async function postForm(interaction) {
     // Short means only a single line of text
     // Paragraph means multiple lines of text
 
-    const durationInp = new TextInputComponent()
+    const durationInp = new TextInputBuilder()
     .setCustomId('duration')
     .setLabel("How long should the givaway last?")
     .setPlaceholder('10S or 10M or 10H or 10D between 1 minute and 30 days')
-    .setStyle('SHORT');
+    .setStyle('Short');
 
-    const titleInp = new TextInputComponent()
+    const titleInp = new TextInputBuilder()
     .setCustomId('title')
     .setLabel("What should the giveaway be called?")
-    .setStyle('SHORT');
+    .setStyle('Short');
     
-    const descriptionInp = new TextInputComponent()
+    const descriptionInp = new TextInputBuilder()
     .setCustomId('description')
     .setLabel("Describe the giveaway")
     .setPlaceholder('A fun giveaway!')
-    .setStyle('PARAGRAPH');
+    .setStyle('Paragraph');
 
-    const prizeInp = new TextInputComponent()
+    const prizeInp = new TextInputBuilder()
     .setCustomId('prize')
     .setLabel("What does the winner....win?")
     .setPlaceholder('Discord Nitro')
-    .setStyle('SHORT');
+    .setStyle('Short');
     
-    const winnersInp = new TextInputComponent()
+    const winnersInp = new TextInputBuilder()
     .setCustomId('winners')
     .setLabel("Number of winners")
     .setPlaceholder('Between 1 and 99 winners')
     .setMinLength(1)
     .setMaxLength(2)
-    .setStyle('SHORT');
+    .setStyle('Short');
 
     // An action row only holds one text input,
     // so you need one action row per text input.
-    const title = new MessageActionRow().addComponents(titleInp);
-    const desc = new MessageActionRow().addComponents(descriptionInp);
-    const dur = new MessageActionRow().addComponents(durationInp);
-    const prize = new MessageActionRow().addComponents(prizeInp);
-    const winners = new MessageActionRow().addComponents(winnersInp);
+    const title = new ActionRowBuilder().addComponents(titleInp);
+    const desc = new ActionRowBuilder().addComponents(descriptionInp);
+    const dur = new ActionRowBuilder().addComponents(durationInp);
+    const prize = new ActionRowBuilder().addComponents(prizeInp);
+    const winners = new ActionRowBuilder().addComponents(winnersInp);
 
     // Add inputs to the modal
     modal.addComponents(title, desc, dur, prize, winners);
@@ -82,14 +82,16 @@ function postGiveawayMessage(bot, interaction, title, desc, dur, prize, winners)
 
     const author = {
         name: "Selmer Bot",
-        url: "",
+        url: bot.inviteLink,
         iconURL: bot.user.displayAvatarURL()
     };
 
     var timeAdjuster = 1;
     var time;
 
-    if (dur.indexOf('M') != -1) {
+    if (dur.indexOf('S') != -1) {
+        time = dur.replace("S", "");
+    } else if (dur.indexOf('M') != -1) {
         timeAdjuster = 60;
         time = dur.replace("M", "");
     } else if (dur.indexOf('H') != -1) {
@@ -106,7 +108,7 @@ function postGiveawayMessage(bot, interaction, title, desc, dur, prize, winners)
         return interaction.reply("Please enter a valid NUMBER of winners");
     }
 
-    const embd = new MessageEmbed()
+    const embd = new EmbedBuilder()
     .setTitle(title)
     .setAuthor(author)
     .setDescription(desc)
@@ -161,6 +163,8 @@ function postGiveawayMessage(bot, interaction, title, desc, dur, prize, winners)
                 msg.reply(`And the winner is:\n${finalists.join("\n")}`);
                 embd.fields.push({name: 'winner:', value: `${finalists.join("\n")}`, inline: true});
             }
+
+            //Maybe add a notif for the server owner when a contest ends?
 
             msg.edit({ embeds: [embd] });
         });        

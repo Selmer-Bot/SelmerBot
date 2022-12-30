@@ -1,5 +1,5 @@
 const { checkRole } = require('./verify.js');
-const { Constants } = require('discord.js');
+const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
     name: 'lock',
@@ -29,5 +29,5 @@ module.exports = {
             interaction.reply(`${channel} has been locked!`);
         });
     },
-    options: [{name: 'channel', description: 'The channel to lock (defaults to current channel)', type: Constants.ApplicationCommandOptionTypes.CHANNEL, required: false}]
+    options: [{name: 'channel', description: 'The channel to lock (defaults to current channel)', type: ApplicationCommandOptionType.Channel, required: false}]
 }

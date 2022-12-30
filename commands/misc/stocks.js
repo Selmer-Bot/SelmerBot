@@ -1,4 +1,4 @@
-const { Constants, MessageEmbed, Interaction } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, Interaction } = require('discord.js');
 
 const dateFns = require('date-fns');
 const { formatToTimeZone } = require('date-fns-timezone');
@@ -18,14 +18,14 @@ async function getStockData(bot, interaction, stock, type, after) {
         const snapshotPromise = alpaca.getSnapshot(stock);
 
         snapshotPromise.then(snapshot => {
-            const embd = new MessageEmbed()
-                .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+            const embd = new EmbedBuilder()
+                .setAuthor({ name: "Selmer Bot", url: bot.inviteLink, iconURL: bot.user.displayAvatarURL() })
                 .setFooter({ text: 'Selmer Bot uses Alpaca for stock information'})
 
             if (type) {
                 const lt = snapshot.LatestTrade;
                 embd.setTitle(`${stock} Latest Trade`)
-                .setTimestamp(lt.Timestamp)
+                .setTimestamp(new Date(lt.Timestamp))
                 .addFields(
                     {name: 'Price', value: `${lt.Price}`},
                     {name: 'Size', value: `${lt.Size}`},
@@ -39,7 +39,7 @@ async function getStockData(bot, interaction, stock, type, after) {
                 }
                 const lq = snapshot.LatestQuote;
                 embd.setTitle(`${stock} Latest Quote`)
-                .setTimestamp(lq.Timestamp)
+                .setTimestamp(new Date(lq.Timestamp))
                 .addFields(
                     {name: 'Ask Price', value: `${lq.AskPrice}`},
                     {name: 'Ask Size', value: `${lq.AskSize}`},
@@ -54,7 +54,7 @@ async function getStockData(bot, interaction, stock, type, after) {
                 const db = snapshot.DailyBar;
                 const pdb = snapshot.PrevDailyBar;
                 embd.setTitle(`${stock} Bars`)
-                .setTimestamp(mb.Timestamp)
+                .setTimestamp(new Date(mb.Timestamp))
                 .addFields(
                     {name: 'Minute Bar', value: `Open Price: ${mb.OpenPrice},\nClose Price: ${mb.ClosePrice},\nHigh Price: ${mb.HighPrice},\nLow Price: ${mb.LowPrice},\nVolume: ${mb.Volume},\nCount: ${mb.TradeCount},\nVWAP: ${mb.VWAP}`},
                     {name: 'Day Bar (Today)', value: `Open Price: ${db.OpenPrice},\nClose Price: ${db.ClosePrice},\nHigh Price: ${db.HighPrice},\nLow Price: ${db.LowPrice},\nVolume: ${db.Volume},\nCount: ${db.TradeCount},\nVWAP: ${db.VWAP}`},
@@ -114,8 +114,8 @@ module.exports = {
         getData(bot, interaction);
     },
     options: [
-        {name: 'name', description: 'the stock name or "hours" for market hours', type: Constants.ApplicationCommandOptionTypes.STRING, required: true},
-        {name: 'type', description: 'The type of data to present', type: Constants.ApplicationCommandOptionTypes.STRING, required: true, choices: [ { name: 'trade', value: 'trade' }, { name: 'quote', value: 'quote' }, {name: 'bars', value: 'bars'}]},
-        {name: 'after', description: 'If the markets are closed, get the last entry', type: Constants.ApplicationCommandOptionTypes.BOOLEAN, required: false},
+        {name: 'name', description: 'the stock name or "hours" for market hours', type: ApplicationCommandOptionType.String, required: true},
+        {name: 'type', description: 'The type of data to present', type: ApplicationCommandOptionType.String, required: true, choices: [ { name: 'trade', value: 'trade' }, { name: 'quote', value: 'quote' }, {name: 'bars', value: 'bars'}]},
+        {name: 'after', description: 'If the markets are closed, get the last entry', type: ApplicationCommandOptionType.Boolean, required: false},
     ]
 }

@@ -1,28 +1,28 @@
-const { MessageEmbed, MessageActionRow, MessageButton, Interaction } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction } = require('discord.js');
 
 module.exports = {
     name: 'repo',
     description: 'See where Selmer bot\'s code is stored!',
     execute(interaction, Discord, Client, bot) {
-        const embd = new MessageEmbed()
+        const embd = new EmbedBuilder()
         .setAuthor({ name: "Selmer Bot", url: bot.user.inviteLink, iconURL: bot.user.displayAvatarURL() })
         .setThumbnail("https://github.com/ION606/selmer-bot-website/blob/main/assets/Selmer-icon.png?raw=true")    // .setThumbnail('https://repository-images.githubusercontent.com/460670550/43932b23-d795-4334-838f-f33ee8f795c4')
         .setDescription("Selmer Bot was created by ION606");
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
         .addComponents([
-            new MessageButton()
-            .setStyle("LINK")
+            new ButtonBuilder()
+            .setStyle(ButtonStyle.Link)
             .setURL("https://github.com/ION606/selmerBot")
             .setLabel("Github Repo"),
 
-            new MessageButton()
-            .setStyle("LINK")
+            new ButtonBuilder()
+            .setStyle(ButtonStyle.Link)
             .setURL("https://selmerbot.com/")
             .setLabel("Website"),
 
-            new MessageButton()
-            .setStyle("PRIMARY")
+            new ButtonBuilder()
+            .setStyle(ButtonStyle.Primary)
             .setLabel("Tutorial")
             .setCustomId("sbtutorial")
         ]);

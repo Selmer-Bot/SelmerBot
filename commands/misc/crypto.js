@@ -1,4 +1,4 @@
-const { Formatters, MessageEmbed, Constants } = require('discord.js');
+const { Formatters, EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 const CoinGecko = require('coingecko-api');
 const CoinGeckoClient = new CoinGecko();
 
@@ -33,7 +33,7 @@ module.exports = {
                     
                     resolve(temp);
                 }).then((temp) => {
-                    interaction.reply(temp);
+                    interaction.reply({content: temp, ephemeral: true});
                 })
             } catch (err) {
                 console.error(err);
@@ -51,14 +51,16 @@ module.exports = {
             const temp = datacc.filter(t => t.base == args[0].value);
             const res = temp.length == 0 ? [] : temp[0];
 
+            if (!res.base) { return interaction.reply("Please specify a valid currency or use `/crypto list` to list all available currencies"); }
+            
             //price: res.last, symbol: base, trust score: trust_score
             var obj = coinlist.get(res.base.toLowerCase());
             obj.price = res.last;
             obj.score = res.trust_score || "N/A";
 
-            const embd = new MessageEmbed()
+            const embd = new EmbedBuilder()
                 .setTitle(obj.name)
-                .setAuthor({ name: "Selmer Bot", url: "", iconURL: bot.user.displayAvatarURL() })
+                .setAuthor({ name: "Selmer Bot", url: bot.inviteLink, iconURL: bot.user.displayAvatarURL() })
                 .setFields(
                     {name: "Price", value: `$${obj.price}`},
                     {name: "Symbol", value: `${obj.symbol}`},
@@ -74,5 +76,5 @@ module.exports = {
             return interaction.reply("Uh Oh! There's been an error!");
         }
     },
-    options: [{name: 'query', description: 'Name or List', type: Constants.ApplicationCommandOptionTypes.STRING, required: true}]
+    options: [{name: 'query', description: 'Name or "list"', type: ApplicationCommandOptionType.String, required: true}]
 }
