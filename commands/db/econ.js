@@ -1,6 +1,5 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
 // const { update } = require('apt');
-const { Collection, Client, codeBlock, Intents, Interaction } = require('discord.js');
+const { codeBlock, Interaction, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { CLIENT_ODBC } = require('mysql/lib/protocol/constants/client');
 const { time } = require('@discordjs/builders');
 const { welcome } = require('../admin/welcome.js');
@@ -314,38 +313,68 @@ function printInventory(dbo, interaction) {
 }
 
 
-function getShop(interaction, items, bot) {
-    const args = interaction.options.data;
-    const type = args.filter((arg) => { return (arg.name == 'type'); })[0].value.toLowerCase();
-
-    // if (args.length == 0) {
-    //     let temp = Formatters.codeBlock(items.map(i => `${i.sect}`).join(' '));
-    //     temp = [...new Set(temp.split(' '))];
-
-    //     return message.reply(`Please use the format ${bot.prefix}shop [type] [page number]\nTypes are: ${temp}`);
-    // }
-
+function getShop(interaction, items, bot, fromBtn = false) {
+    var args;
+    var type;
     let ind = 1;
-    let noinp = false;
-    if (args.length > 1) {
-        const amt = args.filter((arg) => { return (arg.name == 'page'); })[0].value;
-        if (amt.value < (items.length / 9)) {
-            ind = Number(amt);
-        } else {
-            return interaction.reply("That number is too large").catch(() => { interaction.channel.send("That number is too large"); });
+
+    if (!fromBtn) {
+        args = interaction.options.data;
+        type = args.filter((arg) => { return (arg.name == 'type'); })[0].value.toLowerCase();  
+
+        if (args.length > 1) {
+            const amt = args.filter((arg) => { return (arg.name == 'page'); })[0].value;
+            if (amt.value < (items.length / 9)) {
+                ind = Number(amt);
+            } else {
+                return interaction.reply("That number is too large").catch(() => { interaction.channel.send("That number is too large"); });
+            }
         }
     } else {
-        noinp = true;
+        const opts = interaction.customId.split('|');
+        type = opts[1];
+        ind = Number(opts[2]);
+        
     }
 
     const items2 = items.filter(function(f) { return (f.sect.toLowerCase() == type) }).slice((ind - 1)*10, (ind - 1)*10+10);
-    newText = codeBlock(items2.map(i => `${i.icon} (${i.name}): $${i.cost}`).join('\n')); //${currencySymbol} doesn't owrk for some reason
+    const newText = codeBlock(items2.map(i => `${i.icon} (${i.name}): $${i.cost}`).join('\n')); //${currencySymbol} doesn't owrk for some reason
 
-    if (noinp) {
-        newText += `(Use ${bot.prefix}shop [type] [page number] to access other pages)`;
+    const row = new ActionRowBuilder();
+    //Make sure the index is never < 1
+    const prevbtn = new ButtonBuilder()
+        .setLabel('⬅️')
+        .setStyle(ButtonStyle.Secondary);
+
+    if (ind - 1 <= 0) {
+        prevbtn.setCustomId(`shop|${type}|0`)
+        prevbtn.setDisabled(true);
+    } else {
+        prevbtn.setCustomId(`shop|${type}|${ind - 1}`);
     }
 
-    return interaction.reply(newText).catch(() => { interaction.channel.send(newtext); });
+    const nextbtn = new ButtonBuilder()
+        .setLabel('➡️')
+        .setStyle(ButtonStyle.Secondary);
+
+    if (ind >= Math.floor(items.length/9) - 1) {
+        nextbtn.setCustomId(`shop|${type}|${items.length}`);
+        nextbtn.setDisabled(true);
+    } else {
+        nextbtn.setCustomId(`shop|${type}|${ind + 1}`);
+    }
+
+    row.addComponents(prevbtn, nextbtn);
+
+    if (!fromBtn) {
+        interaction.reply({content: newText, components: [row]}).catch(() => {
+            interaction.channel.send({content: newText, components: [row]});
+        });
+    } else {
+        interaction.update({content: newText, components: [row]}).catch(() => {
+            interaction.channel.send({content: newText, components: [row]});
+        });
+    }
 }
 
 
@@ -412,6 +441,6 @@ module.exports = {
     },
 
     //Battle Updating stuff
-    addxp, checkAndUpdateBal, CreateNewCollection, econHelp, BASE, STATE,
+    addxp, checkAndUpdateBal, CreateNewCollection, econHelp, getShop, BASE, STATE,
     options: []
 }

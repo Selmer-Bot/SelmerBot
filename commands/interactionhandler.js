@@ -8,12 +8,12 @@ const tuto = require('./Selmer Specific/tuto');
 const mswpr = require('./games/minesweeper.js');
 const giveaway = require('./misc/giveaway.js');
 const setup = require('./admin/easySetup.js');
+const econ = require('./db/econ.js');
 // const { RSSInteractionHandler } = require('./premium/rssFeed.js');
 const { Interaction, Client } = require('discord.js');
 const Discord = require('discord.js');
 
 /**
- * 
  * @param {Interaction} interaction
  */
 async function handle_interaction(interaction, mongouri, turnManager, bot, STATE, items, xp_collection) {
@@ -101,6 +101,8 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                 setup.handle(bot, interaction);
             } else if (interaction.customId.indexOf('addRole') != -1) {
                 reactionrole.handleBtn(interaction);
+            } else if (interaction.customId.indexOf('shop') != -1) {
+                econ.getShop(interaction, items, bot, true);
             } //Button else ifs here
         });
     }
