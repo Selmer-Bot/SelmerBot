@@ -269,11 +269,6 @@ bot.on('interactionCreate', async interaction => {
 
     //Slash commands
     if (interaction.isChatInputCommand()) {
-
-        if (interaction.isUserContextMenuCommand()) {
-            return handleContext(bot, interaction.options.data[0]);
-        }
-
         const logable = ['kick', 'ban', 'unban', 'mute', 'unmute', 'timeout'];
         const econList = ["buy", 'shop', 'work', 'rank', 'inventory', 'balance', 'sell'];
         const adminList = ["setpresence", "setactivity"];
@@ -302,6 +297,8 @@ bot.on('interactionCreate', async interaction => {
         } else {
             interaction.reply("Unknown command detected!");
         }
+    } else if (interaction.isContextMenuCommand()) {
+        return handleContext(bot, interaction);
     } else {
         handle_interaction(interaction, mongouri, turnManager, bot, STATE, items, xp_collection);
     }

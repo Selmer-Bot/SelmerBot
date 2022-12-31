@@ -38,9 +38,17 @@ function CreateNewCollection(interaction, client, server, id, opponent = null, g
     db.listCollections({name: id})
     .next(function(err, collinfo) {
         if (!collinfo) {
-            interaction.reply("You didn't have a place in my databases, so I created one for you!\nPlease try your command again!")
+            var txtInserted = "You didn't have a place in my databases, so I created one for you!\nPlease try your command again!\n\n";
+            txtInserted += "_PS - Your profile is currently set to `public`. This means that others can view your rank, xp and what game you're playing ***in this server***.";
+            txtInserted += " To set your profile to private use `/card setPrivate`_";
+
             let hp_mp = {maxhp: BASE.HP, hp: BASE.HP, maxmp: BASE.MP, mp: BASE.MP}
-            dbo.insertOne({balance: 10, rank: 1, lastdayworked: 0, xp: 0, hpmp: hp_mp, game: game, gamesettings: {battle: {class: 'none', ultimate: true}}, opponent: opponent, state: STATE.IDLE, equipped: { weapons: {main: null, secondary: null}, items: {}}});
+            dbo.insertOne({
+                balance: 10, rank: 1, lastdayworked: 0, xp: 0, private: false,
+                hpmp: hp_mp, game: game, gamesettings: {battle: {class: 'none', ultimate: true}}, opponent: opponent, state: STATE.IDLE, equipped: { weapons: {main: null, secondary: null}, items: {}}
+            });
+
+            interaction.reply({ content: txtInserted, ephemeral: true });
         }
     });
 }
@@ -324,7 +332,7 @@ function getShop(interaction, items, bot, fromBtn = false) {
 
         if (args.length > 1) {
             const amt = args.filter((arg) => { return (arg.name == 'page'); })[0].value;
-            if (amt.value < (items.length / 9)) {
+            if (amt < (items.length / 9)) {
                 ind = Number(amt);
             } else {
                 return interaction.reply("That number is too large").catch(() => { interaction.channel.send("That number is too large"); });

@@ -9,6 +9,7 @@ const mswpr = require('./games/minesweeper.js');
 const giveaway = require('./misc/giveaway.js');
 const setup = require('./admin/easySetup.js');
 const econ = require('./db/econ.js');
+const { showCard } = require('./Selmer Specific/userCard.js');
 // const { RSSInteractionHandler } = require('./premium/rssFeed.js');
 const { Interaction, Client } = require('discord.js');
 const Discord = require('discord.js');
@@ -183,8 +184,13 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
  * @param {Interaction} interaction 
  */
 async function handleContext(bot, interaction) {
-    const { targetId, commandName, user } = interaction;
-    console.log(interaction);
+    const { commandName } = interaction;
+
+    if (interaction.isUserContextMenuCommand()) {
+        if (commandName.indexOf("Card") != -1) {
+            showCard(bot, interaction);
+        }
+    }
 }
 
 module.exports = { handle_interaction, handleContext }

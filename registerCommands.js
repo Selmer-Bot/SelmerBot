@@ -1,4 +1,4 @@
-const {Client, ApplicationCommandOptionType, ApplicationCommandType} = require('discord.js');
+const {Client, ApplicationCommandOptionType, ApplicationCommandType, ContextMenuCommandBuilder} = require('discord.js');
 
 /**
  * Registers all slash commands
@@ -126,22 +126,16 @@ function registerCommands(bot) {
             // type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
             options: gameOpts,
             dm_permission: false
-        }).then(() => {
-            return resolve(true);
-            
-            if (!bot.inDebugMode) { return resolve(true); }
-
-            commands.create({
-                name: 'setup_embed',
-                description: 'Create a row of buttons for easier setup',
-                options: []
-            });
+        }).then(() => {            
+            // if (!bot.inDebugMode) { return resolve(true); }
 
             //#region Context Menus
-            commands.create({
-                name: "Temp",
-                type: 'USER'
-            }).then(() => { resolve(true); });
+            const cardCom = new ContextMenuCommandBuilder()
+            .setDMPermission(false)
+            .setName("View Card")
+            .setType(ApplicationCommandType.User)
+
+            commands.create(cardCom).then(() => { resolve(true); });
             
             //#endregion
         }).catch((err) => { reject(err); });

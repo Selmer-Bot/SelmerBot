@@ -115,7 +115,7 @@ async function welcome(member, welcomeChannel, welcomemessage, welcomebanner, we
 
                     // return console.log(buffer.byteLength * 0.000001);
                     welcomeChannel.send({
-                        files: [buffer],
+                        files: [buffer]
                     });
                 });
             });
