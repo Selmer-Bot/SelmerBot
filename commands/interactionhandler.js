@@ -93,7 +93,7 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                 const page = Number(interaction.customId.split('|')[1]);
                 tuto.postEmbd(bot, interaction, page, true);
             } else if (interaction.customId.indexOf("mswpr|") != -1) {
-                mswpr.handle(bot, interaction, interaction.channel, false, xp_collection);
+                mswpr.handle(bot, interaction, null, interaction.channel, false, xp_collection);
             } else if (interaction.customId.indexOf("sbtutorial") != -1) {
                 interaction.deferUpdate();
                 tuto.execute(interaction, null, null, bot);

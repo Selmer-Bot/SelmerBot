@@ -3,24 +3,29 @@ const { winGame, loseGame, equipItem } = require('./external_game_functions.js')
 const wait = require('node:timers/promises').setTimeout;
 const { STATE } = require('../db/econ.js')
 
-function startGame(bot, channel, interaction) {
-    const args = interaction.options.data;
+function startGame(bot, channel, interaction, solo) {
+    var args;
+
+    if (solo) {
+        const opts = interaction.options.data[0].options;
+        const diff = opts.filter((opt) => { return(opt.name == 'difficulty'); });
+        args = [null, diff[0].value];
+    } else {
+        args = interaction.customId.split('|');
+    }
+
+    const optDiff = args[1];
     let componentlist = [];
     var diff;
 
-    if (args.length < 1 || args[0].value == 'easy') {
+    if (optDiff == 'easy') {
         diff = 0;
-    } else if (args[0].value == 'medium') {
+    } else if (optDiff == 'medium') {
         diff = 0.1;
-    } else if (args[0].value == 'hard') {
+    } else if (optDiff == 'hard') {
         diff = 0.2;
     } else {
         diff = 0;
-    }
-
-    let user = '';
-    if (args.length < 2) {
-        user = interaction.user.id;
     }
 
     for (let i = 0; i < 5; i ++) {
@@ -32,9 +37,9 @@ function startGame(bot, channel, interaction) {
             const isbmb = (Math.random() > (0.70 - diff));
 
             if (isbmb) {
-                btn.setCustomId(`mswpr|${i}|${j}|t|${user}`);
+                btn.setCustomId(`mswpr|${i}|${j}|t`);
             } else {
-                btn.setCustomId(`mswpr|${i}|${j}|f|${user}`);
+                btn.setCustomId(`mswpr|${i}|${j}|f`);
             }
             
             btn.setLabel('?')
@@ -46,7 +51,10 @@ function startGame(bot, channel, interaction) {
         componentlist.push(row);
     }
 
-    interaction.reply(`${interaction.user} has started a solo game of Minesweeper!`);
+    if (solo) {
+        interaction.reply(`${interaction.user} has started a solo game of Minesweeper!`);
+    }
+
     channel.send({ content: `SCORE: \`0\`\nTILES LEFT: \`25\``, components: componentlist });
 }
 
@@ -90,78 +98,123 @@ async function changeBoard(bot, interaction, xp_collection) {
     const col = id[1];
     const row = id[2];
     const isbmb = (id[3] === 't');
-    const user = id[4];
-    if (user && user != '') {
-        if (interaction.user.id != user) {
-            interaction.user.send(`Message from a Minesweeper game in <#${interaction.channel.id}>: ***This is a solo game!***`);
-            return; // interaction.reply({ content: "It's not your turn!", ephemeral: true }); //Can only reply once
-        }
-    }
 
-    var components = interaction.message.components;
-    var btn = components[col].components[row];
+    bot.mongoconnection.then(async (client) => {
+        const gbo = client.db('B|S' + bot.user.id).collection(interaction.guildId);
 
-    if (isbmb) {
-        gameOver(interaction);
-        bot.mongoconnection.then((client) => { client.db(interaction.guildId).collection(interaction.user.id).updateOne({ game: {$exists: true} }, { $set: { game: null } }); });
-        const channel = bot.channels.cache.get(interaction.message.channel.parentId);
-        channel.send(`${interaction.user} found a bomb in Minesweeper!`);
-        interaction.channel.send(`\`Thread closing \`<t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
-        
-        await wait(10000);
-        interaction.channel.delete();
-    } else {
-        const btnNew = ButtonBuilder.from(btn)
-        .setDisabled(true)
-        .setLabel("1")
-        .setStyle(ButtonStyle.Success)
-        // btn.setDisabled(true);
-        // btn.label = "1";
-        // btn.style = "SUCCESS";
-        components[col].components[row] = btnNew;
+        gbo.findOne({$or: [{0: interaction.user.id}, {1: interaction.user.id}]}).then(async (doc) => {
+            if (!doc['1']) {
+                if (interaction.user.id != doc['0']) {
+                    interaction.user.send(`Message from a Minesweeper game in <#${interaction.channel.id}>: ***This is a solo game!***`);
+                    return; // interaction.reply({ content: "It's not your turn!", ephemeral: true }); //Can only reply once
+                } else if (doc['0'] != interaction.user.id && doc['1'] != interaction.user.id) {
+                    interaction.user.send(`Message from a Minesweeper game in <#${interaction.channel.id}>: ***You're not part of this game!***`);
+                    return;
+                }
+            }
 
-        let content = interaction.message.content;
-        let score = Number(content.split('`')[1]);
-        let tLeft = Number(content.split('`')[3]);
+            var components = interaction.message.components;
+            var btn = components[col].components[row];
 
-        //Win the game (just clicked the last tile)
-        if (tLeft <= 1) {
-            gameOver(interaction, true).then(async (newComp) => {
-                interaction.message.edit({ content: `GAME WON!!!\nSCORE: \`${score + 1}\``, components: newComp });
-                const channel = bot.channels.cache.get(interaction.message.channel.parentId);
-                channel.send(`${interaction.user} won a game of Minesweeper with a score of ${score + 1}!`);
-                interaction.channel.send(`\`Thread closing\` <t:${Math.floor((new Date()).getTime()/1000) + 8}:R>`);
-                
-                await wait(7000);
-                // interaction.channel.delete();
-                bot.mongoconnection.then(client => {
-                    const db = client.db(interaction.guildId);
-                    const dbo = db.collection(interaction.user.id);
-                    winGame(client, bot, db, dbo, xp_collection, interaction.message, true);
+            if (isbmb) {
+                gameOver(interaction);
+                bot.mongoconnection.then((client) => {
+                    const gbo = client.db('B|S' + bot.user.id).collection(interaction.guildId);
+                    gbo.findOne({$or: [{0: interaction.user.id}, {1: interaction.user.id}]}).then((doc) => {
+                        if (!doc['1']) {
+                            client.db(interaction.guildId).collection(interaction.user.id).updateOne(
+                                { game: {$exists: true} }, { $set: { game: null, state: STATE.IDLE } });
+                        } else {
+                            const dbo = client.db(interaction.guildId).collection(doc['0']);
+                            dbo.updateOne({"game": {$exists: true}}, { $set: { game: null, opponent: null, state: STATE.IDLE}});
+
+                            const other_dbo = client.db(interaction.guildId).collection(doc['1']);
+                            other_dbo.updateOne({"game": {$exists: true}}, { $set: { game: null, opponent: null, state: STATE.IDLE}});
+                        }
+
+                        client.db('B|S' + bot.user.id).collection(interaction.guildId).deleteOne({$or: [{0: interaction.user.id}, {1: interaction.user.id}]});
+                    })
                 });
-            });
-        } else {
-            interaction.message.edit({ content: `SCORE: \`${score + 1}\`\nTILES LEFT: \`${tLeft - 1}\``, components: components });
-        }
-    }
+                const channel = bot.channels.cache.get(interaction.message.channel.parentId);
+                channel.send(`${interaction.user} found a bomb in Minesweeper!`);
+                interaction.channel.send(`\`Thread closing \`<t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
+                
+                await wait(10000);
+                interaction.channel.delete();
+            } else {
+                const btnNew = ButtonBuilder.from(btn)
+                .setDisabled(true)
+                .setLabel("1")
+                .setStyle(ButtonStyle.Success)
+                // btn.setDisabled(true);
+                // btn.label = "1";
+                // btn.style = "SUCCESS";
+                components[col].components[row] = btnNew;
+
+                let content = interaction.message.content;
+                let score = Number(content.split('`')[1]);
+                let tLeft = Number(content.split('`')[3]);
+
+                //Win the game (just clicked the last tile)
+                if (tLeft <= 1) {
+                    gameOver(interaction, true).then(async (newComp) => {
+                        interaction.message.edit({ content: `GAME WON!!!\nSCORE: \`${score + 1}\``, components: newComp });
+                        const channel = bot.channels.cache.get(interaction.message.channel.parentId);
+
+                        const gbo = client.db('B|S' + bot.user.id).collection(interaction.guildId);
+                        gbo.findOne({$or: [{0: interaction.user.id}, {1: interaction.user.id}]}).then(async (doc) => {
+                            if (doc['1']) {
+                                const other = interaction.guild.members.cache.get(doc['1']);
+                                channel.send(`${interaction.user} and ${other} won a game of Minesweeper with a score of ${score + 1}!`);
+                            } else {
+                                channel.send(`${interaction.user} won a game of Minesweeper with a score of ${score + 1}!`);
+                            }
+                            interaction.channel.send(`\`Thread closing\` <t:${Math.floor((new Date()).getTime()/1000) + 8}:R>`);
+                            
+                            await wait(7000);
+                            // interaction.channel.delete();
+
+                            if (doc['1']) {
+                                const db = client.db(interaction.guildId);
+
+                                const dbo = db.collection(interaction.user.id);
+                                winGame(client, bot, db, dbo, xp_collection, interaction.message, interaction.channel);
+
+                                const other_dbo = db.collection(interaction.user.id);
+                                winGame(client, bot, db, other_dbo, xp_collection, interaction.message, interaction.channel, false);
+                            } else {
+                                const db = client.db(interaction.guildId);
+                                const dbo = db.collection(interaction.user.id);
+                                winGame(client, bot, db, dbo, xp_collection, interaction.message, true);
+                            }
+                        });
+                    });
+                } else {
+                    interaction.message.edit({ content: `SCORE: \`${score + 1}\`\nTILES LEFT: \`${tLeft - 1}\``, components: components });
+                }
+            }
+        });
+    });
 }
 
 
-function checkAndStartGame(bot, interaction, channel) {
+function checkAndStartGame(bot, interaction, channel, solo = false) {
     bot.mongoconnection.then(client => {
         const db = client.db(interaction.guildId);
         const dbo = db.collection(interaction.user.id);
         dbo.findOne({game: {$exists: true}}).then((doc) => {
             try {
-                if (doc.game != null) {
-                    console.log(doc);
-                    return interaction.reply("You're already in a game!").catch((err) => {
-                        interaction.channel.send("You're already in a game!");
-                    });
+                if (solo) {
+                    if (doc.game != null) {
+                        return interaction.reply("You're already in a game!").catch((err) => {
+                            interaction.channel.send("You're already in a game!");
+                        });
+                    }
+
+                    dbo.updateOne({ "game": {$exists: true} }, { $set: { game: "minesweeper", state: STATE.FIGHTING }});
                 }
 
-                dbo.updateOne({ "game": {$exists: true} }, { $set: { game: "minesweeper", state: STATE.FIGHTING }});
-                startGame(bot, channel, interaction);
+                startGame(bot, channel, interaction, solo);
             } catch (err) {
                 console.log(err);
                 const { addComplaintButton } = require('../dev only/submitcomplaint.js');
@@ -172,11 +225,11 @@ function checkAndStartGame(bot, interaction, channel) {
 }
 
 
-function handle(bot, interaction, channel = null, isStart = true, xp_collection = null) {
+function handle(bot, interaction, args, channel = null, isStart = true, xp_collection = null, solo = true) {
     if (isStart) {
-        checkAndStartGame(bot, interaction, channel);
+        checkAndStartGame(bot, interaction, channel, solo);
     } else {
-        //Maybe add player checking later?
+        //Player checking done in changeBoard
         changeBoard(bot, interaction, xp_collection);
     }
 }

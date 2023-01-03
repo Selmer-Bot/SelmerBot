@@ -21,7 +21,7 @@ const { winGame, loseGame, equipItem } = require('./external_game_functions.js')
 const { chooseClass, presentClasses } = require('./game_classes.js');
 
 //Has a list of all games (used to change player state)
-const allGames = ['battle', 'Tic Tac Toe'];
+const allGames = ['battle', 'Tic Tac Toe', 'minesweeper', 'trivia'];
 
 
 
@@ -70,18 +70,24 @@ async function Initialize(bot, user_dbo, command, message, first, second, other_
 
 //#endregion
 
-//replies to the message with current game specifics
-function getGame(interaction, args, db) {
+//replies to the message with current game specifics FIXME
+function getGame(interaction, db) {
     let id;
     var temp;
 
-    if (args.length == 1 && String(args[0]).startsWith('<')) { id = args[0].substr(2, args[0].length - 3)}
-    else { id = interaction.user.id; }
-    var user_dbo = db.collection(interaction.user.id);
+    const opt = interaction.options.data[0].options[0];
 
-    user_dbo.find({"game": {$exists: true}}).toArray(function(err, docs){
-        const doc = docs[0];
-        if (doc.game == null) {
+    // if (args.length == 1 && String(args[0]).startsWith('<')) { id = args[0].substr(2, args[0].length - 3)}
+    // else { id = interaction.user.id; }
+
+    if (opt) { id = opt.user.id }
+    else { id = interaction.user.id; }
+    const dbo = db.collection(id);
+
+    dbo.findOne({"game": {$exists: true}}).then((doc) => {
+        if (doc.private) {
+            return interaction.reply("This user has their profile set to private!");
+        } else if (doc.game == null) {
             return interaction.reply(`<@${id}> is not currently playing a game!`);
         }
 
@@ -186,6 +192,19 @@ function equip(interaction, inp, command, dbo, bot, shop) {
 
 }
 
+
+function getRow(customId) {
+    const row = new ActionRowBuilder()
+    .addComponents(
+        new ButtonBuilder()
+        .setCustomId(customId)
+        .setLabel('Accept Invite')
+        .setStyle(ButtonStyle.Success)
+    );
+
+    return row;
+}
+
 //#endregion
 
 
@@ -247,7 +266,8 @@ module.exports ={
 
         //Check for a second person and create a second database entry if neccessary
         if (command.options && command.options.length > 0 && command.options[0].type == "USER") {
-            ecoimport.CreateNewCollection(interaction, client, server, command.options[0].value);
+            const op = command.options.filter((opt) => { return (opt.name == 'opponent'); })[0].value;
+            ecoimport.CreateNewCollection(interaction, client, server, op.user.id);
         }
 
 //#endregion
@@ -267,12 +287,17 @@ module.exports ={
             //For TWO+ PLAYER games only!!!
             if (commandName == 'accept') {
                 const args = interaction.customId.split('|');
-                // console.log(interaction.message.interaction);
-                // console.log(interaction.user);
-                // return console.log(args);
 
                 //Should also check if the player is already playing a game!!!
-                if (!acceptIsValid(bot, interaction.user, interaction, args[1], interaction.message)) { return; }
+                var checkId;
+                //Minesweeper
+                if (Number.isNaN(Number(args[1]))) {
+                    checkId = args[3];
+                } else {
+                    checkId = args[1];
+                }
+
+                if (!acceptIsValid(bot, interaction.user, interaction, checkId, interaction.message)) { return; }
 
                 //Get the opponent
                 const other_id = interaction.message.interaction.user.id;
@@ -333,25 +358,48 @@ module.exports ={
                         ttt.handle(client, db, dbo, other, bot, thread, 'initalize', mongouri, null, xp_collection);
                         remAccptBtn(interaction.message);
                     });
+                } else if (newCommand == 'minesweeper') {
+                    // mnswpr.handle(bot, interaction, interaction.channel, true, xp_collection);
+                    // console.log(interaction);
+                    result.then((thread) => {
+                        // const threadname = `${interaction.user.username} is playing Minesweeper`;
+                        // const thread = await interaction.channel.threads.create({
+                        //     name: threadname,
+                        //     // type: 'GUILD_PRIVATE_THREAD',
+                        //     autoArchiveDuration: 60,
+                        //     reason: `N/A`,
+                        // });
+                        mnswpr.handle(bot, interaction, args, thread, true, xp_collection, false);  
+                    });
                 }
             } else if (commandName == 'quit') {
+                //Check if this channel is the one with the game
+                serverinbotdb.findOne({$or: [{0: id}, {1: id}]}).then((doc) => {
+                    var channelToDel;
 
-                const channel = bot.channels.cache.get(interaction.channel.parentId);
+                    if (interaction.channel.name == doc.thread) {
+                        channelToDel = interaction.channel;
+                    } else {
+                        channelToDel = interaction.guild.channels.cache.find((c) => { return c.name == doc.thread});
+                    }
 
-                //Remove the turn counter from the bot's database
-                serverinbotdb.deleteOne({0: id} || {1: id});
-                if (doc.opponent != null) {
-                    // let other = message.guild.members.cache.get(doc.opponent);
-                    let other = db.collection(doc.opponent);
-                    channel.send(`<@${interaction.user.id}> has quit a game of "${game}" with <@${doc.opponent}>!`);
-                    winGame(client, bot, db, other, xp_collection, interaction);
-                } else {
-                    loseGame(dbo, xp_collection, interaction, bot);
-                    channel.send(`<@${interaction.user.id}> has quit a game of "${game}"!`);
-                }
+                    const channel = bot.channels.cache.get(channelToDel.parentId);
+
+                    //Remove the turn counter from the bot's database
+                    serverinbotdb.deleteOne({$or: [{0: id}, {1: id}]});
+
+                    if (doc['1'] != null) {
+                        let other = db.collection(doc['1']);
+                        channel.send(`<@${interaction.user.id}> has quit a game of "${game}" with <@${doc['1']}>!`);
+                        winGame(client, bot, db, other, xp_collection, interaction, channelToDel);
+                    } else {
+                        loseGame(dbo, xp_collection, interaction, bot, channelToDel);
+                        channel.send(`<@${interaction.user.id}> has quit a game of "${game}"!`);
+                    }
+                });
             }
             else if (commandName == 'status') {
-                getGame(interaction, args, db);
+                getGame(interaction, db);
             } else if (commandName == 'hpmp') {
                 hpmp(interaction, commandName, dbo);
             } else if (command == 'equip') {
@@ -373,27 +421,21 @@ module.exports ={
                 
                 //RETURN TO THIS LATER
                 if (game == 'battle' || commandName == 'battle') {
+                    if (command.options[0].value == interaction.user.id) {
+                        return interaction.reply("You can't invite yourself!");
+                    }
                     if (!bot.inDebugMode) { return interaction.reply("This command is currently in development!"); }
                     
-                    const row = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                        .setCustomId(`gameaccept|${command.options[0].value}|${interaction.user.id}`)
-                        .setLabel('Accept Invite')
-                        .setStyle(ButtonStyle.Success)
-                    );
+                    const row = getRow(`gameaccept|${command.options[0].value}|${interaction.user.id}`);
 
-                    const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Tic Tac Toe"_. Click the button to accept the invitation!`, components: [row]};
+                    const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Battle"_. Click the button to accept the invitation!`, components: [row]};
                     interaction.reply(content).catch((err) => interaction.channel.send(content));
 
                 } else if (game == 'Tic Tac Toe' || commandName == 'Tic Tac Toe') {
-                    const row = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                        .setCustomId(`gameaccept|${command.options[0].value}|${interaction.user.id}`)
-                        .setLabel('Accept Invite')
-                        .setStyle(ButtonStyle.Success)
-                    );
+                    if (command.options[0].value == interaction.user.id) {
+                        return interaction.reply("You can't invite yourself!");
+                    }
+                    const row = getRow(`gameaccept|${command.options[0].value}|${interaction.user.id}`);
 
                     const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Tic Tac Toe"_. Click the button to accept the invitation!`, components: [row]};
                     interaction.reply(content).catch((err) => interaction.channel.send(content));
@@ -401,16 +443,33 @@ module.exports ={
                     trivia.execute(interaction, Discord, client, bot);
                 } else if (game == "minesweeper" || commandName == 'minesweeper') {
                     if (game == "minesweeper" && commandName == 'minesweeper') {
-                        return message.reply("You're already in a game!");
+                        return interaction.reply("You're already in a game!");
                     }
-                    const threadname = `${interaction.user.username} is playing Minesweeper`;
-                    const thread = await interaction.channel.threads.create({
-                        name: threadname,
-                        // type: 'GUILD_PRIVATE_THREAD',
-                        autoArchiveDuration: 60,
-                        reason: `N/A`,
-                    });
-                    mnswpr.handle(bot, interaction, thread);
+
+                    const diff = command.options.filter((opt) => { return (opt.name == 'difficulty'); })[0].value;
+                    const op = command.options.filter((opt) => { return (opt.name == 'opponent'); });
+
+                    if (op && op[0]) {
+                        if (op[0].user.id == interaction.user.id) {
+                            return interaction.reply("You can't invite yourself!");
+                        }
+                        
+                        const row = getRow(`gameaccept|${diff}|${interaction.user.id}|${op[0].user.id}`);
+                        const content = {content: `${op[0].user}, ${interaction.user} has invited you to play _"Minesweeper"_. Click the button to accept the invitation!`, components: [row]};
+                        interaction.reply(content).catch((err) => interaction.channel.send(content));
+                    } else {
+                        const threadname = `${interaction.user.username} is playing Minesweeper`;
+                        const thread = await interaction.channel.threads.create({
+                            name: threadname,
+                            // type: 'GUILD_PRIVATE_THREAD',
+                            autoArchiveDuration: 60,
+                            reason: `N/A`,
+                        });
+
+                        var soloObj = {0: id, 1: null, turn: 0, thread: threadname};
+                        serverinbotdb.insertOne(soloObj);
+                        mnswpr.handle(bot, interaction, null, thread);
+                    }
                 }
 
                 //Catch statement (invalid command)

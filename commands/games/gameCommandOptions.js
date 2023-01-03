@@ -7,9 +7,9 @@ module.exports = [
         description: 'Start a game of Trivia',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
-        {name: 'difficulty', description: 'The question difficulty OR "help"', type: ApplicationCommandOptionType.String, required: true, choices: [{name: 'easy', value: 'easy'}, {name: 'medium', value: 'medium'}, {name: 'hard', value: 'hard'}]},
-        {name: 'category', description: 'The trivia Category', type: ApplicationCommandOptionType.Integer, required: false, choices: trivia_categories},
-        {name: 'time', description: 'Set the round length (in seconds)', type: ApplicationCommandOptionType.Integer, required: false},
+            {name: 'difficulty', description: 'The question difficulty OR "help"', type: ApplicationCommandOptionType.String, required: true, choices: [{name: 'easy', value: 'easy'}, {name: 'medium', value: 'medium'}, {name: 'hard', value: 'hard'}]},
+            {name: 'category', description: 'The trivia Category', type: ApplicationCommandOptionType.Integer, required: false, choices: trivia_categories},
+            {name: 'time', description: 'Set the round length (in seconds)', type: ApplicationCommandOptionType.Integer, required: false},
     ]},
 
     {
@@ -17,7 +17,7 @@ module.exports = [
         description: 'Start a game of Batte',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
-        {name: 'opponent', description: 'Who do you want to battle against?', type: ApplicationCommandOptionType.User, required: true},
+            {name: 'opponent', description: 'Who do you want to battle against?', type: ApplicationCommandOptionType.User, required: true},
     ]},
 
     {
@@ -26,7 +26,7 @@ module.exports = [
         type: ApplicationCommandOptionType.Subcommand,
         options: [
             {name: 'difficulty', description: 'Set the diffficulty', type: ApplicationCommandOptionType.String, required: true, choices: [{name: 'easy', value: 'easy'}, {name: 'medium', value: 'medium'}, {name: 'hard', value: 'hard'}]},
-            // {name: 'opponent', description: 'Play a game against someone else', type: ApplicationCommandOptionType.User, required: false}
+            {name: 'opponent', description: 'Play a game against someone else', type: ApplicationCommandOptionType.User, required: false}
         ]
     },
 
@@ -35,7 +35,7 @@ module.exports = [
         description: 'Start a game of TicTacToe',
         type: ApplicationCommandOptionType.Subcommand,
         options: [
-        {name: 'opponent', description: 'Who do you want to play against?', type: ApplicationCommandOptionType.User, required: true},
+            {name: 'opponent', description: 'Who do you want to play against?', type: ApplicationCommandOptionType.User, required: true},
     ]},
 
     {
@@ -49,7 +49,9 @@ module.exports = [
         name: "status",
         description: "Check your current game status",
         type: ApplicationCommandOptionType.Subcommand,
-        options: []
+        options: [
+            {name: 'user', description: "The user who's game to check (defaults to you)", type: ApplicationCommandOptionType.User, required: false}
+        ]
     },
 
     {

@@ -5,7 +5,7 @@ const { addComplaintButton } = require('../dev only/submitcomplaint');
 
 
 //#region game lose/win
-function loseGame(user_dbo, xp_collection, interaction, bot = null) {
+function loseGame(user_dbo, xp_collection, interaction, bot, channelToDel) {
     return new Promise(function(resolve, reject) {
     user_dbo.find({"game": {$exists: true}}).toArray(function(err, docs) {
         const doc = docs[0];
@@ -27,7 +27,7 @@ function loseGame(user_dbo, xp_collection, interaction, bot = null) {
             }
         } else {
             //Check if the channel is a thread
-            interaction.channel.delete();
+            channelToDel.delete();
         }
 
         //Update the player's xp
@@ -41,35 +41,34 @@ function loseGame(user_dbo, xp_collection, interaction, bot = null) {
 }
 
 
-function winGame(client, bot, db, user_dbo, xp_collection, interaction, singlePlayer = false) {
+// DelTog is there in case multiple people could win a game
+function winGame(client, bot, db, user_dbo, xp_collection, interaction, channelToDel, delTog = true) {
     user_dbo.find({"game": {$exists: true}}).toArray(function(err, docs){
         const doc = docs[0];
         
         //Check for an opponent
-        if (doc.opponent != null) {
+        if (doc.opponent != null && delTog) {
             let other = db.collection(doc.opponent);
-            let promise_temp = loseGame(other, xp_collection, interaction);
+            let promise_temp = loseGame(other, xp_collection, interaction, bot);
             
             promise_temp.then(function(result) {
                 var amt_taken = result;
                 user_dbo.updateOne({'balance': {$exists: true}}, { $set: { balance: doc.balance + amt_taken}});
             });
-        }
 
-        //Delete the bot's record of the game
-        if (!singlePlayer) {
-            client.db('B|S' + bot.user.id).collection(interaction.guildId).drop();
+            //Delete the bot's record of the game
+            const id = interaction.user.id;
+            client.db('B|S' + bot.user.id).collection(interaction.guildId).deleteOne({$or: [{0: id}, {1: id}]});
         }
-        
 
         //Update the player with xp
         user_dbo.updateOne({"game": {$exists: true}}, { $set: { game: null, opponent: null, state: STATE.IDLE, xp: doc.xp + (BASE.XP * doc.rank), 'hpmp.hp': doc.hpmp.maxhp, 'hpmp.mp': doc.hpmp.maxmp }});
 
-        if (!singlePlayer) {
+        if (delTog) {
             const channel = bot.channels.cache.get(interaction.channel.parentId);
             channel.send(`<@${user_dbo.s.namespace.collection}> just won a game of "${docs[0].game}"!`);
+            channelToDel.delete();
         }
-        interaction.channel.delete();
     });
 }
 
