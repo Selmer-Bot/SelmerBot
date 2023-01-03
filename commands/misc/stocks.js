@@ -27,7 +27,7 @@ async function getStockData(bot, interaction, stock, type, after) {
                 embd.setTitle(`${stock} Latest Trade`)
                 .setTimestamp(new Date(lt.Timestamp))
                 .addFields(
-                    {name: 'Price', value: `${lt.Price}`},
+                    {name: 'Price', value: `$${lt.Price}`},
                     {name: 'Size', value: `${lt.Size}`},
 
                     //This will always be IEX, as it is the only exchange the free version offers
@@ -41,9 +41,9 @@ async function getStockData(bot, interaction, stock, type, after) {
                 embd.setTitle(`${stock} Latest Quote`)
                 .setTimestamp(new Date(lq.Timestamp))
                 .addFields(
-                    {name: 'Ask Price', value: `${lq.AskPrice}`},
+                    {name: 'Ask Price', value: `$${lq.AskPrice}`},
                     {name: 'Ask Size', value: `${lq.AskSize}`},
-                    {name: 'Bid price', value: `${lq.BidPrice}`},
+                    {name: 'Bid price', value: `$${lq.BidPrice}`},
                     {name: 'Bid Size', value: `${lq.BidSize}`},
 
                     //This will always be IEX, as it is the only exchange the free version offers

@@ -9,6 +9,7 @@ const mswpr = require('./games/minesweeper.js');
 const giveaway = require('./misc/giveaway.js');
 const setup = require('./admin/easySetup.js');
 const econ = require('./db/econ.js');
+const marriage = require('./social/marriage.js');
 const { showCard } = require('./Selmer Specific/userCard.js');
 // const { RSSInteractionHandler } = require('./premium/rssFeed.js');
 const { Interaction, Client } = require('discord.js');
@@ -104,6 +105,8 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                 reactionrole.handleBtn(interaction);
             } else if (interaction.customId.indexOf('shop') != -1) {
                 econ.getShop(interaction, items, bot, true);
+            } else if (interaction.customId.indexOf('jacct') != -1) {
+                marriage.handle(bot, interaction);
             } //Button else ifs here
         });
     }

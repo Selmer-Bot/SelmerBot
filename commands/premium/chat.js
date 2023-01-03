@@ -1,6 +1,7 @@
 const { MongoClient, ServerApiVersion, ConnectionClosedEvent } = require('mongodb');
 const { exit } = require('process');
 const { checkResponses } = require('./wordlist.js');
+const { encrypt, decrypt } = require('../utils/encryption.js');
 
 
 //Error checking function (message deleted error fix, workaround already applied but...)
@@ -53,15 +54,19 @@ async function convoManager(clientinp, bot, message) {
     if (message.content.startsWith('!')) {
         if (message.content.split(' ')[0] == '!startconvo') {
             //Check if a conversation already exists
-            dbo.find({'_id': {$exists: true}}).toArray((err, docs) => { 
-                if (docs[0] != undefined) {
+            dbo.findOne({'_id': {$exists: true}}).then((doc) => {
+                if (doc != undefined) {
                     return message.channel.send("You're already in a conversation");
                 } else {
-                    dbo.insertOne({convo: 'Human: Hello\nAI: Hello'});
-                    return message.channel.send('-----Started Conversation-----\nuse _!endconvo_ to end the conversation!\n\n_Disclaimer: Your conversation data is stored for the duration of the conversation to help Selmer Bot better understand what you are saying *then deleted*_\n\n');
+                    encrypt('Human: Hello\nAI: Hello').then((startMsg) => {
+                        dbo.insertOne({convo: startMsg.encryptedData, iv: startMsg.iv});
+                        return message.channel.send('-----Started Conversation-----\nuse _!endconvo_ to end the conversation!\n\n_Disclaimer: Your conversation data is stored for the duration of the conversation to help Selmer Bot better understand what you are saying *then deleted*_\n\n');
+                    }).catch((err) => {
+                        console.error(err);
+                        message.channel.send("Uh oh! There's been an error! Please contact support \:[");
+                    });
                 }
             });
-
         } else if (message.content.split(' ')[0] == '!endconvo') { 
             dbo.drop();
             return message.channel.send('-----Ended Conversation-----\nSee you next time!');
@@ -69,8 +74,7 @@ async function convoManager(clientinp, bot, message) {
             return message.channel.send('UNUSABLE DM COMMAND DETECTED');
         }
     } else {
-        dbo.find({convo: {$exists: true}}).toArray(async function (err, docs) {
-            const doc = docs[0];
+        dbo.findOne({convo: {$exists: true}}).then(function (doc) {
             if (!doc) { return message.reply('You aren\'t currently in a conversation\nUse _!startconvo_ to start one!'); }
 
             //Checking Section
@@ -78,32 +82,41 @@ async function convoManager(clientinp, bot, message) {
             if (check != null) { return message.reply(check); }
 
 
-            let convo = doc.convo;
-            convo += `\nHuman: ${message.content}\n`;;
+            decrypt({iv: doc.iv, encryptedData: doc.convo}).then(async (convo) => {
+                convo += `\nHuman: ${message.content}\n`;;
 
-            //Get the response
-            const r = await getResponse(convo, bot);
+                //Get the response
+                const r = await getResponse(convo, bot);
 
-            if (!r) {
-                return message.channel.send("Uh oh! There's been an error! Please contact support \:[");
-            }
+                if (!r) {
+                    return message.channel.send("Uh oh! There's been an error! Please contact support \:[");
+                }
 
-            let response = r.data.choices[0].text;
+                let response = r.data.choices[0].text;
 
-            convo += (response + '\n');
+                convo += (response + '\n');
 
-            dbo.updateOne(doc, {$set: {convo: convo}});
-            response = response.replaceAll('AI: ', '').replaceAll('AI:\n', '');
+                encrypt(convo).then((writeData) => {
+                    dbo.updateOne(doc, {$set: {convo: writeData.encryptedData, iv: writeData.iv}});
+                    response = response.replaceAll('AI: ', '').replaceAll('AI:\n', '');
 
-            //Very buggy so I'm adding this for now
-            message.channel.send(response);
+                    //Very buggy so I'm adding this for now
+                    message.channel.send(response);
 
-            //Note: Work with the following later
-            /* messageExists(message).then((e) => {
-                console.log(e);
-                if (e) { return message.reply(response); }
-                message.channel.send(response);
-            }) */
+                    //Note: Work with the following later
+                    /* messageExists(message).then((e) => {
+                        console.log(e);
+                        if (e) { return message.reply(response); }
+                        message.channel.send(response);
+                    }) */
+                }).catch((err) => {
+                    console.error(err);
+                    message.channel.send("Uh oh! There's been an error! Please contact support \:[");
+                });
+            }).catch((err) => {
+                console.error(err);
+                message.channel.send("Uh oh! There's been an error! Please contact support \:[");
+            });
         });
     }
 }

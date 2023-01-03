@@ -171,7 +171,7 @@ function createDropDown(bot, interaction) {
 function handleInp(bot, interaction) {
     const inp = interaction.options.data[0];
     if (!inp || inp.value == 'help') {
-      interaction.reply({content: 'Use _!premium buy_ to get premium or use _!premium manage_ to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at *https://stripe.com/ *_', ephemeral: true});
+      interaction.reply({content: 'Use `/premium buy` to get premium or use `/premium manage` to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at *https://stripe.com/ *_', ephemeral: true});
     } else if (inp.value == 'buy') {
       createDropDown(bot, interaction);
     } else if (inp.value == 'manage') {

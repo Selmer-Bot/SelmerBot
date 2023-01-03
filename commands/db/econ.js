@@ -45,7 +45,8 @@ function CreateNewCollection(interaction, client, server, id, opponent = null, g
             let hp_mp = {maxhp: BASE.HP, hp: BASE.HP, maxmp: BASE.MP, mp: BASE.MP}
             dbo.insertOne({
                 balance: 10, rank: 1, lastdayworked: 0, xp: 0, private: false,
-                hpmp: hp_mp, game: game, gamesettings: {battle: {class: 'none', ultimate: true}}, opponent: opponent, state: STATE.IDLE, equipped: { weapons: {main: null, secondary: null}, items: {}}
+                hpmp: hp_mp, game: game, gamesettings: {battle: {class: 'none', ultimate: true}}, opponent: opponent, state: STATE.IDLE, equipped: { weapons: {main: null, secondary: null}, items: {}},
+                social: {marriage: {married: false, partner: undefined, marriage_date: undefined, carryover: false}}
             });
 
             interaction.reply({ content: txtInserted, ephemeral: true });
@@ -134,9 +135,9 @@ function getBalance(dbo, interaction) {
         if (doc[0] && doc[0].balance) {
             bal = doc[0].balance;
         }
-        return interaction.reply(`<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`)
+        return interaction.reply({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`, ephemeral: true})
         .catch((err) => {
-            interaction.channel.send(`<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`);
+            interaction.channel.send({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`, ephemeral: true});
         });
     });
 }
@@ -150,7 +151,7 @@ function rank(dbo, interaction, xp_list) {
         let needed = xp_list.get(next);
         
         const tempmsg = `<@${interaction.user.id}> you are currently at rank ${next-1} and have ${doc[0].xp}xp. You need ${needed - doc[0].xp} more xp to get to rank ${next}`;
-        interaction.reply(tempmsg).catch(() => { interaction.channel.send(tempmsg); });
+        interaction.reply({content: tempmsg, ephemeral: true}).catch(() => { interaction.channel.send({content: tempmsg, ephemeral: true}); });
     });
 }
 
@@ -173,7 +174,7 @@ function checkAndUpdateBal(dbo, item, interaction, amt) {
 
             const icost = amt * item.cost;
             if (doc[0].balance < icost) {
-                interaction.reply("Insufficient funds!").catch(() => { interaction.channel.send("Insufficient funds!"); });
+                interaction.reply({content: "Insufficient funds!", ephemeral: true}).catch(() => { interaction.channel.send({content: "Insufficient funds!", ephemeral: true}); });
                 resolve(false);
             } else {
                 let temp = doc[0];
@@ -188,7 +189,7 @@ function checkAndUpdateBal(dbo, item, interaction, amt) {
 }
 
 
-function buy(id, interaction, dbo, shop, xp_list) {
+function buy(bot, interaction, dbo, shop, xp_list) {
     const args = interaction.options.data;
 
     //REAPPLY THIS TO OTHER FUNCTIONS
@@ -426,7 +427,7 @@ module.exports = {
                 // init.execute(bot, message, args, command, dbo, Discord, connect);
                 return;
             } else if (command == 'buy') {
-                buy(bot, id, interaction, dbo, items, xp_list);
+                buy(bot, interaction, dbo, items, xp_list);
             } else if (command == 'shop') {
                 getShop(interaction, items, bot);
             } else if (command == 'work') {

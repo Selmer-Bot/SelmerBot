@@ -1,5 +1,5 @@
 //#region imports
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.js');
 const Discord = require('discord.js');
 const { MongoClient, ServerApiVersion, GridFSBucket } = require('mongodb');
 const fs = require('fs');
@@ -69,6 +69,7 @@ const bot = new Client({
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.MessageContent
     ],
     partials: [ Partials.Channel ]
 });
@@ -217,8 +218,8 @@ var botIsReady = bot.inDebugMode;
 
 bot.on('ready', async () => {
     const startTime = new Date().getTime();
-    bot.user.setPresence({ activities: [{ name: 'Booting up, please hold!', type: "PLAYING" }], status: 'idle' });
-    
+    bot.user.setPresence({ activities: [{ name: 'Booting up, please hold!', type: ActivityType.Playing }], status: "idle" });
+
     registerCommands(bot).then(() => {
         //Make then copy the shop
         bot.mongoconnection.then(client => {
@@ -239,7 +240,7 @@ bot.on('ready', async () => {
         }
 
 
-        bot.user.setPresence({ activities: [{ name: '/help', type: 'PLAYING' }], status: 'online' });
+        bot.user.setPresence({ activities: [{ name: '/help', type: ActivityType.Playing }], status: "online" });
         if (!bot.inDebugMode) {
             console.log('SLEEMER BOT ONLINE!!!!! OH MY GOD OH MY GOD!!!');
         } else {
@@ -330,6 +331,7 @@ bot.on("guildCreate", guild => {
         const dbo = client.db(guild.id).collection('SETUP');
         dbo.insertMany([{_id: 'WELCOME', 'welcomechannel': null, 'welcomemessage': null, 'welcomebanner': null, 'col': "#FFFFFF"}, {_id: 'LOG', 'keepLogs': false, 'logchannel': null, 'severity': 0},
         {_id: 'announcement', channel: null, role: null}, {_id: 'roles', commands: ["Selmer Bot Commands"], announcements: "Selmer Bot Calendar"}]);
+        client.db(guild.id).collection('marriage').insertOne({partners: [], joint_amount: null, joint_toggled: false});
     });
 });
 
@@ -418,12 +420,12 @@ bot.on('guildMemberAdd', async (member) => {
 
 bot.on('messageCreate', (message) => {
     //DM SECTION
-    if (message.channel.type === "DM") {
+    if (message.channel.type == Discord.ChannelType.DM) {
         return handle_dm(message, bot);
     } else if (message.content.indexOf('!spam_collection') != -1) {
         //Handle spam collection/Dev commands
         return devCheck(message, bot);
-    } else if (message.type === "CHANNEL_PINNED_MESSAGE") {
+    } else if (message.type === Discord.MessageType.ChannelPinnedMessage) {
         //Debug log stuff
         if (message.guild.id == bot.home_server && message.channel.id == bot.debug_channel) {
             message.delete();
@@ -431,7 +433,7 @@ bot.on('messageCreate', (message) => {
     }
 
     //Special case, testing server (still need the emojis and error logging)
-    if (!bot.inDebugMode && message.guild.id == bot.home_server) { return; }
+    if (!bot.inDebugMode && message.guildId == bot.home_server) { return; }
 
     if (message.author.bot) { return; }
 
