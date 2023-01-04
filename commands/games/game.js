@@ -384,7 +384,7 @@ module.exports ={
                     } else {
                         channelToDel = interaction.guild.channels.cache.find((c) => { return c.name == doc.thread});
                     }
-console.log(interaction.channel.name, '\n\n', doc.thread.trim());
+
                     const channel = bot.channels.cache.get(channelToDel.parentId);
 
                     //Remove the turn counter from the bot's database
@@ -423,10 +423,11 @@ console.log(interaction.channel.name, '\n\n', doc.thread.trim());
                 
                 //RETURN TO THIS LATER
                 if (game == 'battle' || commandName == 'battle') {
+                    if (!bot.inDebugMode) { return interaction.reply("This command is currently in development!"); }
+                    
                     if (command.options[0].value == interaction.user.id) {
                         return interaction.reply("You can't invite yourself!");
                     }
-                    if (!bot.inDebugMode) { return interaction.reply("This command is currently in development!"); }
                     
                     const row = getRow(`gameaccept|${command.options[0].value}|${interaction.user.id}`);
 
