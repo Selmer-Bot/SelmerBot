@@ -287,7 +287,6 @@ bot.on('interactionCreate', async interaction => {
         } else if (econList.includes(commandName)) {
             bot.commands.get('econ').execute(bot, interaction, Discord, mongouri, items, xp_collection);
         } else if (commandName == 'game') {
-            if (!bot.inDebugMode) { interaction.reply("This command is still in development, use normal text\nEx: _!game tictactoe @opponent_"); }
             const command = interaction.options.data[0];
             bot.commands.get('game').execute(bot, interaction, command, Discord, mongouri, items, xp_collection);
         } else if (commandName == 'setup_embed') {
