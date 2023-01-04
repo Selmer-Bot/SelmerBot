@@ -39,6 +39,18 @@ module.exports = [
     ]},
 
     {
+        name: 'roll',
+        description: 'Roll a die',
+        type: ApplicationCommandOptionType.Subcommand,
+        options: [
+            {name: 'amount', description: 'The number of times to roll the die', type: ApplicationCommandOptionType.Integer, required: true},
+            {name: 'dice', description: 'The type of die to roll', type: ApplicationCommandOptionType.Integer, choices: [
+                {name: 'd4', value: 4}, {name: 'd6', value: 6}, {name: 'd8', value: 8}, {name: 'd10', value: 10}, {name: 'd12', value: 12}, {name: 'd20', value: 20}
+            ], required: true},
+        ]
+    },
+
+    {
         name: "quit",
         description: "Quit your current game",
         type: ApplicationCommandOptionType.Subcommand,

@@ -90,6 +90,7 @@ function postActionBar(interaction, user_dbo, board, symbol, won, initial = fals
                 .setCustomId(`ttt|${i}`)
                 .setLabel('W')
                 .setStyle(ButtonStyle.Success)
+                .setDisabled(true);
             } else {
                 button = new ButtonBuilder()
                 .setCustomId(`ttt|${i}`)
@@ -147,7 +148,7 @@ async function handle(client, db, dbo, other, bot, thread, command, doc, interac
             interaction.channel.send(`\`Thread closing \`<t:${Math.floor((new Date()).getTime()/1000) + 10}:R>`);
         
             await wait(10000);
-            winGame(client, bot, db, dbo, xp_collection, interaction.message);
+            winGame(client, bot, db, dbo, xp_collection, interaction, interaction.channel);
         }
     }
 }

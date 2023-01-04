@@ -10,6 +10,7 @@ const battle = require("./battle.js");
 const ttt = require('./tictactoe.js');
 const trivia = require('./trivia.js');
 const mnswpr = require('./minesweeper.js');
+const dice = require('./dice.js');
 
 //#endregion
 
@@ -312,10 +313,11 @@ module.exports ={
                 let name_second = await bot.users.cache.get(other_id);
 
                 // message.reply(`${first} [${name_first}], ${second} [${name_second}]`); throw 'ERR';
+                if (newCommand.replaceAll(" ", "").toLowerCase() == 'tictactoe') { newCommand = 'Tic Tac Toe'; }
+                // const cNameGame = (newCommand != "tictactoe") ? newCommand.toUpperCase() : "TIC TAC TOE";
+
                 const threadname = `${name_first.username} VS ${name_second.username} [${newCommand.toUpperCase()}]`;
                 var newObj = {0: id, 1: other_id, turn: 0, thread: threadname};
-
-                if (newCommand.replaceAll(" ", "").toLowerCase() == 'tictactoe') { newCommand = 'Tic Tac Toe'; }
 
                 if (newCommand === 'Tic Tac Toe') {
                     //Create the new board
@@ -382,7 +384,7 @@ module.exports ={
                     } else {
                         channelToDel = interaction.guild.channels.cache.find((c) => { return c.name == doc.thread});
                     }
-
+console.log(interaction.channel.name, '\n\n', doc.thread.trim());
                     const channel = bot.channels.cache.get(channelToDel.parentId);
 
                     //Remove the turn counter from the bot's database
@@ -470,6 +472,8 @@ module.exports ={
                         serverinbotdb.insertOne(soloObj);
                         mnswpr.handle(bot, interaction, null, thread);
                     }
+                } else if (commandName == 'roll') {
+                    dice.roll(bot, interaction);
                 }
 
                 //Catch statement (invalid command)
