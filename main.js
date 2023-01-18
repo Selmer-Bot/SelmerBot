@@ -1,5 +1,5 @@
 //#region imports
-const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, ActivityType, ChannelType, codeBlock } = require('discord.js');
 const Discord = require('discord.js');
 const { MongoClient, ServerApiVersion, GridFSBucket } = require('mongodb');
 const fs = require('fs');
@@ -92,6 +92,7 @@ bot.stripe = Stripe(StripeAPIKey);
 
 //The first thing will be an audioPlayer(), the second a queue
 bot.audioData = new Map();
+bot.listeningparties = new Map();
 
 bot.lockedChannels = new Map();
 
@@ -134,9 +135,22 @@ process.on("SIGINT", (signal) => {
 });
 
 
-process.on('uncaughtException', (signal) => {
+process.on('uncaughtException', async (signal) => {
+    
+    if (signal.rawError) {        
+        if (signal.rawError.message.toLowerCase() == 'missing permissions') {
+            var guildId = signal.url;
+            const startind = guildId.indexOf('guilds/') + 7;
+            guildId = guildId.substring(startind, guildId.indexOf('/', startind));
+            const guild = bot.guilds.cache.get(guildId);
+            const ownerTemp = await bot.guilds.cache.get(guildId).fetchOwner();
+            ownerTemp.send(codeBlock("Selmer Bot is missing permissions!\nMy guess would be he doesn't have access to role management.....\n\nPlease try adding him again with correct permissions!"));
+            guild.leave();
+        }
+    }
+
     //Check if this was the last err and if so, ignore
-    if (preverr == signal.stack.toString()) {
+    else if (preverr == signal.stack.toString()) {
         var tempmsg = errmsg.content;
         tempmsg.replaceAll(`{${errTimes}}`, `{${errTimes + 1}}`);
         errTimes++;
