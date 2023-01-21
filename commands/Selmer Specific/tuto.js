@@ -29,12 +29,12 @@ function postEmbd(bot, interaction, page, refered) {
     te.setAuthor(author)
         .setTitle("Selmer Bot Tutorial")
         .setDescription(tutoText[page])
-        .setURL('https://selmerbot.com/')
+        .setURL('https://docs.selmerbot.com/')
         .setFooter({ text: `Page ${page + 1}` });
 
 
     if (tutoText[page].indexOf('Thank you for completing the Selmer Bot Tutorial') != -1) {
-        te.setImage('https://github.com/ION606/selmerBot/blob/main/assets/Sleemer_Bringsjorgend.png?raw=true');
+        te.setImage('https://github.com/Selmer-Bot/SelmerBot/blob/main/assets/Sleemer_Bringsjorgend.png?raw=true');
     }
 
     const row = new ActionRowBuilder();

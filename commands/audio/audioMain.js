@@ -177,19 +177,18 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
 
         const data = bot.audioData.get(guildId);
         if (!data) {
-            var em = interaction.message.embeds[0];
-            em.description = new String;
-            em.description = 'IS NOW STOPPED';
+            var em = new EmbedBuilder(interaction.message.embeds[0]);
+            em.setDescription("IS NOW STOPPED");
             return interaction.message.edit({ components: [], embeds: [em]});
         }
 
         if (interaction) {
             player = data[0];
             command = interaction.customId.toLowerCase();
-            em = interaction.message.embeds[0];
+            em = new EmbedBuilder(interaction.message.embeds[0]);
         } else {
             player = data[0];
-            em = message.embeds[0];
+            em = new EmbedBuilder(message.embeds[0]);
         }
         
         var rows = [new ActionRowBuilder()];
@@ -210,7 +209,7 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
                     .setStyle(ButtonStyle.Secondary)
             );
             
-            em.description = 'IS NOW PAUSED';
+            em.setDescription('IS NOW PAUSED');
             player.pause();
 
         } else if (command == "resume") {
@@ -229,8 +228,7 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
                     .setStyle(ButtonStyle.Secondary)
             );
             
-            em.description = 'IS NOW PLAYING';
-
+            em.setDescription("IS NOW PLAYING");
             player.unpause();
         } else if (command == "stop") {
             playStopEmbed(bot, interaction, null, true);
@@ -249,10 +247,10 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
         if (interaction) { interaction.update({embeds: [em], components: rows}); }
         else {
             const data = bot.audioData.get(guildId);
-            
+
             // var msg = message.channel.messages.cache.get(data[2]);
-            const newEmbed = message.embeds[0];
-            newEmbed.description = "Has been deferred";
+            const newEmbed = new EmbedBuilder(message.embeds[0]);
+            newEmbed.setDescription("Has been deferred");
             message.edit({ embeds: [ newEmbed ], components: []});
 
             const m = message.reply({embeds: [em], components: rows});
@@ -266,7 +264,7 @@ function pause_start_stop(interaction, bot, message = null, command = null) {
     } catch (e) {
         console.log(e);
         rows = [];
-        em.description = new String('IS NOW STOPPED');
+        em.setDescription("IS NOW STOPPED");
         interaction.update({embeds: [em], components: rows});
     }
 }
@@ -329,15 +327,14 @@ function fromMessage(bot, command, interaction) {
     const message = interaction.channel.messages.cache.get(data[2]);
     // console.log(message);
 
-    var em;
-    if (message.embeds) { em = message.embeds[0]; }
+    var emTemp;
+    if (message.embeds) { emTemp = new EmbedBuilder(message.embeds[0]); }
     var rows;
+    const em = emTemp;
 
     if (command == 'stop') {
-        em = message.embeds[0];
         rows = [];
-        em.description = new String;
-        em.description = 'IS NOW STOPPED';
+        em.setDescription("IS NOW STOPPED");
         
         player.stop();
         const connection = getVoiceConnection(guildId);
@@ -349,10 +346,7 @@ function fromMessage(bot, command, interaction) {
     } else if (command == 'skip') {
         if (playNext(null, bot, message)) {
             rows = [];
-            em = message.embeds[0];
-            em.description = new String;
-            em.description = 'IS NOW STOPPED';
-
+            em.setDescription("IS NOW STOPPED");
             interaction.reply("Audio stopped!");
         }
     } else if (command == 'pause' || command == 'resume') {
@@ -360,7 +354,6 @@ function fromMessage(bot, command, interaction) {
         pause_start_stop(null, bot, message, command);
         interaction.deleteReply();
     }
-
 
     message.edit({embeds: [em], components: rows});
 }

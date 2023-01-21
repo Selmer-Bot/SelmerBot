@@ -17,9 +17,9 @@ async function postForm(interaction, role, useEmoji, txt) {
         .setLabel(embdList[i].name);
 
         if (embdList[i].name != 'Description') {
-            tempInp.setStyle('SHORT');
+            tempInp.setStyle('Short');
         } else {
-            tempInp.setStyle('PARAGRAPH');
+            tempInp.setStyle('Paragraph');
         }
 
         if (embdList[i].desc) {

@@ -137,7 +137,7 @@ process.on("SIGINT", (signal) => {
 
 process.on('uncaughtException', async (signal) => {
     
-    if (signal.rawError) {        
+    if (signal.rawError) {
         if (signal.rawError.message.toLowerCase() == 'missing permissions') {
             var guildId = signal.url;
             const startind = guildId.indexOf('guilds/') + 7;

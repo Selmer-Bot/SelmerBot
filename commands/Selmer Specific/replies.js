@@ -45,10 +45,12 @@ function replies(bot, message) {
             s = "🤮";
             break;
 
-        default: s = "I'm not sure what that means! Please use `/help` for a comprehensive list of commands!\n\n_PS - If you want to make full use of the bot's AI capabilities, consider Selmer Bot Premium. See more at https://selmerbot.com/premium _";
+        // default: s = "I'm not sure what that means! Please use `/help` for a comprehensive list of commands!\n\n_PS - If you want to make full use of the bot's AI capabilities, consider Selmer Bot Premium. See more at https://selmerbot.com/premium _";
     }
 
-    message.reply(s).catch(() => { message.channel.send(s); });
+    if (s) {
+        message.reply(s).catch(() => { message.channel.send(s); });
+    }
 }
 
 module.exports = replies;

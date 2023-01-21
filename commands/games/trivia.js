@@ -1,6 +1,6 @@
 const request = require('request');
 const fetch = require('node-fetch');
-const categoriesJSON = require('./trivia_categories.json').trivia_categories;
+const categoriesJSON = require('./json/trivia_categories.json').trivia_categories;
 const { decode } = require('html-entities');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { Interaction } = require('discord.js');

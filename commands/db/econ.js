@@ -31,8 +31,8 @@ function isNum(arg) {
 };
 
 
-function CreateNewCollection(interaction, client, server, id, opponent = null, game = null) {
-    const db = client.db(String(server));
+function CreateNewCollection(interaction, client, serverId, id, opponent = null, game = null) {
+    const db = client.db(String(serverId));
     const dbo = db.collection(id);
 
     db.listCollections({name: id})
@@ -49,7 +49,9 @@ function CreateNewCollection(interaction, client, server, id, opponent = null, g
                 social: {marriage: {married: false, partner: undefined, marriage_date: undefined, carryover: false}}
             });
 
-            interaction.reply({ content: txtInserted, ephemeral: true });
+            interaction.reply({ content: txtInserted, ephemeral: true }).catch((err) => {
+                interaction.channel.send({ content: txtInserted, ephemeral: true });
+            });
         }
     });
 }
@@ -129,16 +131,13 @@ function addxp(bot, interaction, dbo, amt, xp_list, noPing = false) {
 }
 
 
-function getBalance(dbo, interaction) {
-    dbo.find({"balance": {$exists: true}}).toArray(function(err, doc) {
-        let bal = 0;
-        if (doc[0] && doc[0].balance) {
-            bal = doc[0].balance;
-        }
-        return interaction.reply({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`, ephemeral: true})
-        .catch((err) => {
-            interaction.channel.send({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${bal}`, ephemeral: true});
-        });
+async function getBalance(dbo, interaction) {
+    const doc = await dbo.findOne({"balance": {$exists: true}});
+    if (!doc) { return interaction.reply("Uh oh, you don't seem to be in my databases! Please try initializing first using `/inventory`"); }
+
+    return interaction.reply({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${doc.balance}`, ephemeral: true})
+    .catch((err) => {
+        interaction.channel.send({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${doc.balance}`, ephemeral: true});
     });
 }
 
@@ -450,6 +449,6 @@ module.exports = {
     },
 
     //Battle Updating stuff
-    addxp, checkAndUpdateBal, CreateNewCollection, econHelp, getShop, BASE, STATE,
+    addxp, checkAndUpdateBal, CreateNewCollection, econHelp, getShop, getBalance, BASE, STATE,
     options: []
 }

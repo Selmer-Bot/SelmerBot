@@ -13,7 +13,7 @@ module.exports = {
         .addComponents([
             new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
-            .setURL("https://github.com/ION606/selmerBot")
+            .setURL("https://github.com/Selmer-Bot/SelmerBot")
             .setLabel("Github Repo"),
 
             new ButtonBuilder()

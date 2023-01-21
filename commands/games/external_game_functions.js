@@ -43,9 +43,8 @@ function loseGame(user_dbo, xp_collection, interaction, bot, channelToDel) {
 
 // DelTog is there in case multiple people could win a game
 function winGame(client, bot, db, user_dbo, xp_collection, interaction, channelToDel, delTog = true) {
-    user_dbo.find({"game": {$exists: true}}).toArray(function(err, docs){
-        const doc = docs[0];
-        
+    user_dbo.findOne({"game": {$exists: true}}).then((doc) => {
+
         //Check for an opponent
         if (doc.opponent != null && delTog) {
             let other = db.collection(doc.opponent);
@@ -65,8 +64,8 @@ function winGame(client, bot, db, user_dbo, xp_collection, interaction, channelT
         user_dbo.updateOne({"game": {$exists: true}}, { $set: { game: null, opponent: null, state: STATE.IDLE, xp: doc.xp + (BASE.XP * doc.rank), 'hpmp.hp': doc.hpmp.maxhp, 'hpmp.mp': doc.hpmp.maxmp }});
 
         if (delTog) {
-            const channel = bot.channels.cache.get(interaction.channel.parentId);
-            channel.send(`<@${user_dbo.s.namespace.collection}> just won a game of "${docs[0].game}"!`);
+            const channel = bot.channels.cache.get(channelToDel.parentId);
+            channel.send(`<@${user_dbo.s.namespace.collection}> just won a game of "${doc.game}"!`);
             channelToDel.delete();
         }
     });
