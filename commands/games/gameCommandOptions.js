@@ -1,5 +1,5 @@
 const { ApplicationCommandOptionType } = require('discord.js');
-const { trivia_categories } = require('./trivia_categories.json');
+const { trivia_categories } = require('./json/trivia_categories.json');
 
 module.exports = [
     {

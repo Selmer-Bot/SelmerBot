@@ -142,10 +142,13 @@ process.on('uncaughtException', async (signal) => {
             var guildId = signal.url;
             const startind = guildId.indexOf('guilds/') + 7;
             guildId = guildId.substring(startind, guildId.indexOf('/', startind));
+            
             const guild = bot.guilds.cache.get(guildId);
             const ownerTemp = await bot.guilds.cache.get(guildId).fetchOwner();
+            
             ownerTemp.send(codeBlock("Selmer Bot is missing permissions!\nMy guess would be he doesn't have access to role management.....\n\nPlease try adding him again with correct permissions!"));
             guild.leave();
+            return;
         }
     }
 
@@ -161,7 +164,7 @@ process.on('uncaughtException', async (signal) => {
 
     console.log(signal);
 
-    if (bot.inDebugMode) { return; }
+    if (bot.inDebugMode || !bot.isReady()) { return; }
 
     const guild = bot.guilds.cache.get(bot.home_server);
     const owner = guild.members.cache.get(guild.ownerId);

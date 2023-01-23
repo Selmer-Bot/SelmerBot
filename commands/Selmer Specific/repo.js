@@ -6,7 +6,7 @@ module.exports = {
     execute(interaction, Discord, Client, bot) {
         const embd = new EmbedBuilder()
         .setAuthor({ name: "Selmer Bot", url: bot.user.inviteLink, iconURL: bot.user.displayAvatarURL() })
-        .setThumbnail("https://github.com/ION606/selmer-bot-website/blob/main/assets/Selmer-icon.png?raw=true")    // .setThumbnail('https://repository-images.githubusercontent.com/460670550/43932b23-d795-4334-838f-f33ee8f795c4')
+        .setThumbnail("https://github.com/Selmer-Bot/selmer-bot-website/blob/main/assets/Selmer-icon.png?raw=true")    // .setThumbnail('https://repository-images.githubusercontent.com/460670550/43932b23-d795-4334-838f-f33ee8f795c4')
         .setDescription("Selmer Bot was created by ION606");
 
         const row = new ActionRowBuilder()
