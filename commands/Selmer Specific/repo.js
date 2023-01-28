@@ -18,7 +18,7 @@ module.exports = {
 
             new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
-            .setURL("https://selmerbot.com/")
+            .setURL("http://www.selmerbot.com/")
             .setLabel("Website"),
 
             new ButtonBuilder()

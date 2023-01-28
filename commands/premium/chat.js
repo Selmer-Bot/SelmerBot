@@ -32,8 +32,12 @@ async function getResponse(convo, bot) {
         temperature: 0.9,
         max_tokens: 150,
         top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0.6,
+        // frequency_penalty: 0,
+        // presence_penalty: 0.6,
+        frequency_penalty: 2,
+        presence_penalty: 2,
+        best_of: 10,
+        
         stop: [" Human:", " AI:"],
       });
 

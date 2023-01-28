@@ -12,4 +12,4 @@ Set the entry point to `main.js`, then run using `node .`
 
 
 ### View Legacy Releases
-In the event that the old (personal) repo currently at [ION606/selmerBot](https://github.com/ION606/selmerBot) is privated, you can still view those releases at [selmerbot.com/releases](https://selmerbot.com/releases)
+In the event that the old (personal) repo currently at [ION606/selmerBot](https://github.com/ION606/selmerBot) is privated, you can still view those releases at [selmerbot.com/releases](http://www.selmerbot.com/releases)
