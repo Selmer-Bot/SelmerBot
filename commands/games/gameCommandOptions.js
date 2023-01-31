@@ -49,6 +49,22 @@ module.exports = [
             ], required: true},
         ]
     },
+    {
+        name: 'poker',
+        description: 'Play poker with up to 10 people!',
+        type: ApplicationCommandOptionType.Subcommand,
+        options: [
+            {name: 'player_2', description: 'The second player', type: ApplicationCommandOptionType.User, required: true},
+            {name: 'player_3', description: 'The third player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_4', description: 'The fourth player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_5', description: 'The fifth player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_6', description: 'The sixth player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_7', description: 'The seventh player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_8', description: 'The eigth player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_9', description: 'The ninth player', type: ApplicationCommandOptionType.User, required: false},
+            {name: 'player_10', description: 'The tenth player', type: ApplicationCommandOptionType.User, required: false},
+        ]
+    },
 
     {
         name: "quit",

@@ -10,6 +10,7 @@ const giveaway = require('./misc/giveaway.js');
 const setup = require('./admin/easySetup.js');
 const econ = require('./db/econ.js');
 const marriage = require('./social/marriage.js');
+const poker = require('./games/poker.js');
 const { showCard } = require('./Selmer Specific/userCard.js');
 // const { RSSInteractionHandler } = require('./premium/rssFeed.js');
 const { Interaction, Client } = require('discord.js');
@@ -107,6 +108,10 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
                 econ.getShop(interaction, items, bot, true);
             } else if (interaction.customId.indexOf('jacct') != -1) {
                 marriage.handle(bot, interaction);
+            } else if (interaction.customId.indexOf('pokerInvite') != -1) {
+                poker.editAccptMsg(bot, interaction);
+            } else if (interaction.customId.indexOf('poker') != -1) {
+                poker.handle(bot, interaction, xp_collection);
             } //Button else ifs here
         });
     }
@@ -178,6 +183,8 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
             giveaway.processForm(interaction, bot);
         } else if (interaction.customId.indexOf('reactionModal') != -1) {
             reactionrole.processForm(interaction, bot);
+        } else if (interaction.customId.indexOf('poker') != -1) {
+            poker.handle(bot, interaction, xp_collection);
         }
     } //other selection types here
 }

@@ -11,6 +11,7 @@ const ttt = require('./tictactoe.js');
 const trivia = require('./trivia.js');
 const mnswpr = require('./minesweeper.js');
 const dice = require('./dice.js');
+const poker = require('./poker.js');
 
 //#endregion
 
@@ -209,10 +210,7 @@ function getRow(customId) {
 //#endregion
 
 
-
-
 //#region Game Handlers
-
 function in_game_redirector(bot, interaction, threadname, doc, client, mongouri, items, xp_collection) {
 
     //Maybe fix this later......
@@ -317,7 +315,7 @@ module.exports ={
                 // const cNameGame = (newCommand != "tictactoe") ? newCommand.toUpperCase() : "TIC TAC TOE";
 
                 const threadname = `${name_first.username} VS ${name_second.username} [${newCommand.toUpperCase()}]`;
-                var newObj = {0: id, 1: other_id, turn: 0, thread: threadname};
+                var newObj = {0: id, 1: other_id, turn: 0, thread: threadname, game: newCommand};
 
                 if (newCommand === 'Tic Tac Toe') {
                     //Create the new board
@@ -375,28 +373,34 @@ module.exports ={
                     });
                 }
             } else if (commandName == 'quit') {
-                //Check if this channel is the one with the game
-                serverinbotdb.findOne({$or: [{0: id}, {1: id}]}).then((doc) => {
-                    var channelToDel;
-
-                    if (interaction.channel.name == doc.thread) {
-                        channelToDel = interaction.channel;
+                dbo.findOne({"game": {$exists: true}}).then((doc) => {
+                    if (doc.game == "poker") {
+                        poker.quit(bot, interaction, xp_collection);
                     } else {
-                        channelToDel = interaction.guild.channels.cache.find((c) => { return c.name == doc.thread});
-                    }
+                        //Check if this channel is the one with the game
+                        serverinbotdb.findOne({$or: [{0: id}, {1: id}]}).then((doc) => {
+                            var channelToDel;
 
-                    const channel = bot.channels.cache.get(channelToDel.parentId);
+                            if (interaction.channel.name == doc.thread) {
+                                channelToDel = interaction.channel;
+                            } else {
+                                channelToDel = interaction.guild.channels.cache.find((c) => { return c.name == doc.thread});
+                            }
 
-                    //Remove the turn counter from the bot's database
-                    serverinbotdb.deleteOne({$or: [{0: id}, {1: id}]});
+                            const channel = bot.channels.cache.get(channelToDel.parentId);
 
-                    if (doc['1'] != null) {
-                        let other = db.collection(doc['1']);
-                        channel.send(`<@${interaction.user.id}> has quit a game of "${game}" with <@${doc['1']}>!`);
-                        winGame(client, bot, db, other, xp_collection, interaction, channelToDel);
-                    } else {
-                        loseGame(dbo, xp_collection, interaction, bot, channelToDel);
-                        channel.send(`<@${interaction.user.id}> has quit a game of "${game}"!`);
+                            //Remove the turn counter from the bot's database
+                            serverinbotdb.deleteOne({$or: [{0: id}, {1: id}]});
+
+                            if (doc['1'] != null) {
+                                let other = db.collection(doc['1']);
+                                channel.send(`<@${interaction.user.id}> has quit a game of "${game}" with <@${doc['1']}>!`);
+                                winGame(client, bot, db, other, xp_collection, interaction, channelToDel);
+                            } else {
+                                loseGame(dbo, xp_collection, interaction, bot, channelToDel);
+                                channel.send(`<@${interaction.user.id}> has quit a game of "${game}"!`);
+                            }
+                        });
                     }
                 });
             }
@@ -410,7 +414,7 @@ module.exports ={
                 equip(interaction, args, command, dbo, bot, items);
             } else if (command == 'classes') {
                 // This does not work
-                presentClasses(message, args[1]);
+                presentClasses(interaction, args[1]);
             }
 //#endregion
 
@@ -475,6 +479,8 @@ module.exports ={
                     }
                 } else if (commandName == 'roll') {
                     dice.roll(bot, interaction);
+                } else if (commandName == 'poker') {
+                    poker.initialize(bot, interaction);
                 }
 
                 //Catch statement (invalid command)

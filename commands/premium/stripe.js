@@ -99,11 +99,10 @@ async function changeSubscriptionManual(bot, interaction) {
 
                 if (doc != undefined) {
                     userID = doc.stripeID;
-                    // client.close();
                     resolve(userID);
                 } else {
-                    // client.close();
-                    reject(`No user with the ID of <@${interaction.user.id}>`);
+                    // reject(`No user with the ID of <@${interaction.user.id}>`);
+                    reject(`You don't have Selmer Bot Premium, use \`/premium buy\` to get it!`);
                 }
             });
         });
@@ -119,7 +118,9 @@ async function changeSubscriptionManual(bot, interaction) {
         })
     }).catch((err) => {
         if (String(typeof(err)) == 'string') {
-            interaction.channel.send(err);
+            interaction.reply({content: err, ephemeral: true}).catch(() => {
+                interaction.channel.send(err);
+            });
         } else {
             console.log(err);
             interaction.channel.send("A Stripe error occured! Please click the ✅ to report this ASAP!");
@@ -162,7 +163,10 @@ function createDropDown(bot, interaction) {
                 .addOptions(vl)
         );
     
-        interaction.reply({ content: `Please choose a tier`, components: [row], ephemeral: true });
+        const rep = { content: `Please choose a tier`, components: [row], ephemeral: true };
+        interaction.reply(rep).catch(() => {
+            interaction.channel.send(rep);
+        });
     });
   });
 }
@@ -171,7 +175,7 @@ function createDropDown(bot, interaction) {
 function handleInp(bot, interaction) {
     const inp = interaction.options.data[0];
     if (!inp || inp.value == 'help') {
-      interaction.reply({content: 'Use `/premium buy` to get premium or use `/premium manage` to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at *https://stripe.com/ *_', ephemeral: true});
+      interaction.reply({content: 'Use `/premium buy` to get premium or use `/premium manage` to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at https://stripe.com/ _', ephemeral: true});
     } else if (inp.value == 'buy') {
       createDropDown(bot, interaction);
     } else if (inp.value == 'manage') {
