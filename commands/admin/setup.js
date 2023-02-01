@@ -4,7 +4,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 const { CreateNewCollection } = require("../db/econ");
 const { checkRole } = require('./verify.js');
 const fetch = require('node-fetch');
-const help = require('../misc/help.js');
+const help = require('../Selmer Specific/help.js');
 
 
 async function execute(interaction, Discord, Client, bot) {

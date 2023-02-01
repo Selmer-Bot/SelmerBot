@@ -1,5 +1,6 @@
 const { modHelp } = require('../admin/moderation.js');
 const { ApplicationCommandOptionType } = require('discord.js');
+const tuto = require('./tuto.js');
 
 //CHANGE THIS TO FORMS?
 module.exports ={
@@ -10,8 +11,32 @@ module.exports ={
         const groups = new Map([['SBspec', ['arrow', 'extracredit', 'profile', 'quotes', 'code']], ['adminCommands', [ 'setup', 'lock', 'unlock', 'serverlock' ]]]);
         
         var spec = "";
-        if (interaction.options.data[0]) {
-            spec = interaction.options.data[0].value;
+        const opts = interaction.options.data;
+        if (opts.length == 1) {
+            if (opts[0].name == "command") {
+                spec = opts[0].value;
+                const ind = tuto.getPage((spec == 'econ') ? "shop" : spec);
+                if (!ind) { return; }
+                
+                return tuto.execute(interaction, Discord, Client, bot, ind);
+            } else {
+                if (!opts[0].value) {
+                    return tuto.execute(interaction, Discord, Client, bot);
+                }
+            }
+        }
+        else if (opts.length > 1) {
+            //No need to format into a tuto as it's just the one command
+            spec = opts.find((o) => o.name == 'comand').value;
+
+            // Maybe have it jump to the page later
+            // const asTuto = opts.find((o) => o.name == 'dump').value;
+            // if (asTuto) {
+            //     return tuto.execute(interaction, Discord, Client, bot);
+            // }
+        }
+        else {
+            return tuto.execute(interaction, Discord, Client, bot);
         }
 
         if (spec == 'econ') {
@@ -84,5 +109,12 @@ module.exports ={
 
         interaction.reply({ content: temp, ephemeral: true });
     },
-    options: [{name: 'command', description: 'econ, game, or admin', type: ApplicationCommandOptionType.String, required: false, choices: [ { name: 'econ', value: 'econ' }, { name: 'game', value: 'game' }, {name: 'admin', value: 'admin'} ]}]
+    options: [
+        {name: 'command', description: 'the section to look at', type: ApplicationCommandOptionType.String, required: false, choices: [
+            { name: 'econ', value: 'econ' },
+            { name: 'game', value: 'game' },
+            {name: 'admin', value: 'admin'}
+        ]},
+        {name: 'dump', description: 'displays most commands as one long formatted message', type: ApplicationCommandOptionType.Boolean, required: false}
+    ]
 }

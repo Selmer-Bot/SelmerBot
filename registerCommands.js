@@ -8,6 +8,12 @@ function registerCommands(bot) {
     return new Promise((resolve, reject) => {
         const commands = bot.application.commands;
 
+        //Clear all old commands
+        const reset = false;
+        if (!bot.inDebugMode || reset) {
+            commands.set([]);
+        }
+
         /*
             val: {
                 name: 'code',

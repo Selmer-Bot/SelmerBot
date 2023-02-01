@@ -16,6 +16,20 @@ const tutoText = [
     "__**Thank you for completing the Selmer Bot Tutorial**__\n\nTry out Selmer Bot's features, play the games and most importantly, have fun\n\n-The Selmer Bot Team AKA ION606"
 ];
 
+
+function getPage(comname) {
+    const hstr = tutoText.find((c) => {
+        // const startind = c.indexOf("***COMMANDS***") + 14;
+        return (c.indexOf(comname) != -1);
+    });
+    if (hstr) {
+        return tutoText.indexOf(hstr);
+    } else {
+        return undefined;
+    }
+}
+
+
 //If the page number == 0 and refered == false, then interaction will be a Message
 function postEmbd(bot, interaction, page, refered) {
     const author = {
@@ -65,18 +79,26 @@ function postEmbd(bot, interaction, page, refered) {
     row.addComponents(prevbtn, nextbtn);
 
     if (page > 0 || refered) {
-        interaction.update({ content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row] });
+        const c = { content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row], ephemeral: true };
+
+        try {
+            interaction.update(c);
+        } catch {
+            interaction.reply(c).catch(() => { interaction.channel.send(c); });
+        }
     } else {
-        interaction.channel.send({ content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row] });
+        const c = { content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row], ephemeral: true };
+        interaction.reply(c).catch(() => { interaction.channel.send(c); });
     }
 }
 
 
 module.exports = {
-    name: 'tuto',
-    description: 'An introduction command to Selmer Bot',
-    async execute(interaction, Discord, Client, bot) {
-        postEmbd(bot, interaction, 0, false);
+    // name: 'tuto',
+    // description: 'An introduction command to Selmer Bot',
+    async execute(interaction, Discord, Client, bot, page = 0) {
+        postEmbd(bot, interaction, page, false);
     }, postEmbd,
-    options: []
+    options: [],
+    getPage
 }
