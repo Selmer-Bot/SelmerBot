@@ -21,7 +21,6 @@ module.exports = {
         //When set to true, getInfoFromName.getBestMatch did not, in fact, return the best results
         scraper.getInfoFromName(name, false).then((data) => {
             try {
-                console.log(data);
                 if (style == 'stats') {
                     const newEmbed = new EmbedBuilder()
                     .setColor('#002eff')
