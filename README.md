@@ -1,6 +1,6 @@
 # selmerBot
 
-Author: ION606
+Created by ION606
 
 ### Node Packages Installation Instructions
 Download the _package.json_ file from the repo using
