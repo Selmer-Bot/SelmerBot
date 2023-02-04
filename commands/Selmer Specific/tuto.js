@@ -97,7 +97,7 @@ module.exports = {
     // name: 'tuto',
     // description: 'An introduction command to Selmer Bot',
     async execute(interaction, Discord, Client, bot, page = 0) {
-        postEmbd(bot, interaction, page, false);
+        postEmbd(bot, interaction, page);
     }, postEmbd,
     options: [],
     getPage

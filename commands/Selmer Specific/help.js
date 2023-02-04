@@ -116,5 +116,6 @@ module.exports ={
             {name: 'admin', value: 'admin'}
         ]},
         {name: 'dump', description: 'displays most commands as one long formatted message', type: ApplicationCommandOptionType.Boolean, required: false}
-    ]
+    ],
+    isDm: true
 }

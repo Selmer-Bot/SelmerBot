@@ -7,7 +7,7 @@ const reactionrole = require('./admin/reactionrole.js');
 const tuto = require('./Selmer Specific/tuto');
 const mswpr = require('./games/minesweeper.js');
 const giveaway = require('./misc/giveaway.js');
-const setup = require('./admin/easySetup.js');
+// const setup = require('./admin/easySetup.js');
 const econ = require('./db/econ.js');
 const marriage = require('./social/marriage.js');
 const { showCard } = require('./Selmer Specific/userCard.js');
@@ -95,8 +95,8 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
             } else if (interaction.customId.indexOf("mswpr|") != -1) {
                 mswpr.handle(bot, interaction, null, interaction.channel, false, xp_collection);
             } else if (interaction.customId.indexOf("sbtutorial") != -1) {
-                interaction.deferUpdate();
-                tuto.execute(interaction, null, null, bot);
+                // interaction.deferUpdate();
+                tuto.execute(interaction, null, null, bot, 0);
             } else if (interaction.customId.indexOf("gameaccept") != -1) {
                 bot.commands.get('game').execute(bot, interaction, {name: 'accept'}, Discord, mongouri, items, xp_collection);
             } else if (interaction.customId.indexOf("setupBtn") != -1) {
