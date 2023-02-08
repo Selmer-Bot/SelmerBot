@@ -42,7 +42,7 @@ function mapToTableRecursive(inp, layer = 1) {
     Array.from(inp.keys()).forEach((key) => {
         var keyTemp = ('|     ').repeat(layer);
         temp += `${keyTemp}- - ${key}\n`.replaceAll('     - -', '- -');
-        temp += mapToTable(inp.get(key), layer + 1);
+        temp += mapToTableRecursive(inp.get(key), layer + 1);
     });
 
     temp += ('|     ').repeat(layer - 1) + '\n';
