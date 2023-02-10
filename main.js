@@ -18,6 +18,7 @@ const { backupLists, loadBotBackups } = require('./commands/dev only/backupBot.j
 const { setPresence } = require('./commands/dev only/setPresence.js');
 const { exit } = require('process');
 const {textToLevels} = require('./commands/Selmer Specific/msgLevels.js');
+const scheduled = require('./commands/dev only/scheduled.js');
 //#endregion
 
 const BASE_LVL_XP = 20;
@@ -236,6 +237,8 @@ var botIsReady = bot.inDebugMode;
 bot.on('ready', async () => {
     const startTime = new Date().getTime();
     bot.user.setPresence({ activities: [{ name: 'Booting up, please hold!', type: ActivityType.Playing }], status: "idle" });
+
+    scheduled(bot);
 
     registerCommands(bot).then(() => {
         //Make then copy the shop

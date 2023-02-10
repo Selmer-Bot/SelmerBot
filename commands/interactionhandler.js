@@ -1,7 +1,7 @@
 const { createSubscriptionManual } = require('./premium/stripe.js');
 const { pause_start_stop, playNext, showQueue } = require('./audio/audioMain.js');
 const { resolveComplaint } = require('./dev only/submitcomplaint.js');
-const { RSSInteractionHandler } = require('../side projects/RSSHandlers/rssFeed.js');
+// const { RSSInteractionHandler } = require('../side projects/RSSHandlers/rssFeed.js');
 const reminders = require('./premium/reminders.js');
 const reactionrole = require('./admin/reactionrole.js');
 const tuto = require('./Selmer Specific/tuto');
@@ -11,7 +11,7 @@ const giveaway = require('./misc/giveaway.js');
 const econ = require('./db/econ.js');
 const marriage = require('./social/marriage.js');
 const { showCard } = require('./Selmer Specific/userCard.js');
-// const { RSSInteractionHandler } = require('./premium/rssFeed.js');
+const rss = require('./premium/rss.js');
 const { Interaction, Client } = require('discord.js');
 const Discord = require('discord.js');
 
@@ -167,7 +167,9 @@ async function handle_interaction(interaction, mongouri, turnManager, bot, STATE
             if (bot.inDebugMode) {
                 RSSInteractionHandler(bot, interaction);
             }
-        }  //menu else ifs here
+        }  else if (interaction.customId.indexOf("rss_menu") != -1) {
+            rss.handle(bot, interaction);
+        } //menu else ifs here
     }
     
     //Forms

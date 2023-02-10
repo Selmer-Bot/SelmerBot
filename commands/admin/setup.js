@@ -148,6 +148,20 @@ async function execute(interaction, Discord, Client, bot) {
                         interaction.reply({content: 'https://docs.selmerbot.com/setup', ephemeral: true});
                     }
                 }
+                else if (command == "rss_channel") {
+                    const channel = interaction.options.data[0].value;
+                    const rssDoc = await dbo.findOne({_id: "RSS"});
+                    if (!rssDoc) {
+                        dbo.insertOne({_id: "RSS", feeds: []});
+                        return interaction.reply({content: `RSS feed channel updated to <#${channel}>`, ephemeral: true});
+                    }
+
+                    dbo.updateOne({_id: "RSS"}, {$set: {channel: channel}}).then(() => {
+                        interaction.reply({content: `RSS feed channel updated to <#${channel}>`, ephemeral: true});
+                    }).catch(() => {
+                        interaction.reply({content: "Uh oh! There's been an error!", ephemeral: true});
+                    });
+                }
                 else {
                     interaction.reply({content: "Please chose a valid option", ephemeral: true});
                 }
@@ -197,6 +211,7 @@ module.exports = {
         {name: 'leveling_banner', description: 'Set the card background for the leveling system', type: ApplicationCommandOptionType.Attachment},
         {name: 'leveling_text', description: 'Use {un}, {ud}, {ut}, {sn}, and {r} for username, descriminator, user tag, server name, and rank', type: ApplicationCommandOptionType.String},
         {name: 'leveling_color', description: 'Set the card text color for the leveling system', type: ApplicationCommandOptionType.String},
+        {name: 'rss_channel', description: 'Set the channel to send RSS pings to', type: ApplicationCommandOptionType.Channel},
         {name: 'help', description: 'in-app?', type: ApplicationCommandOptionType.Boolean}
     ]
 }
