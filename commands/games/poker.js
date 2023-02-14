@@ -1,6 +1,7 @@
 const { initialize, editAccptMsg } = require('./poker/initialize.js');
-const { advanceGame, raise, raiseModal, match } = require('./poker/turns.js');
+const { advanceGame, raise, raiseModal, match, createBettingButton } = require('./poker/turns.js');
 const { quit } = require('./poker/quit.js');
+const { showHand } = require('./poker/showHand.js');
 const { getBalance } = require('../db/econ.js');
 
 
@@ -58,6 +59,10 @@ async function handle(bot, interaction, xp_collection) {
 
             case 'check':
                 getBalance(dbo, interaction);
+                break;
+
+            case 'show':
+                showHand(bot, interaction, doc.players);
                 break;
 
             default:

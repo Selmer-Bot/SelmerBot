@@ -11,6 +11,7 @@ function registerCommands(bot) {
         //Clear all old commands
         const reset = false;
         if (!bot.inDebugMode || reset) {
+            console.log("Rsetting commands......");
             commands.set([]);
         }
 

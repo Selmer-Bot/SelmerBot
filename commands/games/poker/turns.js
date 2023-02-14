@@ -181,6 +181,14 @@ function createBettingButton(bot, interaction) {
         .setStyle(ButtonStyle.Danger)
     ]);
 
+    const row2 = new ActionRowBuilder()
+    .addComponents([
+        new ButtonBuilder()
+        .setCustomId(`poker|${interaction.channelId}|betbtn|show`)
+        .setLabel("CHECK HAND")
+        .setStyle(ButtonStyle.Primary)
+    ])
+
     bot.mongoconnection.then((client) => {
         const gbo = client.db('B|S' + bot.user.id).collection(interaction.guildId);
         gbo.findOne({"players.user": interaction.user.id}).then((doc) => {
@@ -197,7 +205,7 @@ function createBettingButton(bot, interaction) {
             embd.addFields(betArr);
             embd.setTimestamp();
 
-            interaction.channel.send({embeds: [embd], components: [row]});
+            interaction.channel.send({embeds: [embd], components: [row, row2]});
         });
     });
 }
