@@ -131,7 +131,7 @@ async function convoManager(clientinp, bot, message) {
     });
 }
 
-//"Hello! discord_user:"
+
 module.exports = {
     name: 'chat',
     description: 'chat',

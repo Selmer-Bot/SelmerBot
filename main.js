@@ -237,7 +237,8 @@ var botIsReady = bot.inDebugMode;
 bot.on('ready', async () => {
     const startTime = new Date().getTime();
     bot.user.setPresence({ activities: [{ name: 'Booting up, please hold!', type: ActivityType.Playing }], status: "idle" });
-
+    
+    replies(bot);
     scheduled(bot);
 
     registerCommands(bot).then(() => {
@@ -460,7 +461,12 @@ bot.on('messageCreate', (message) => {
         if (message.content == `<@${bot.user.id}>`) {
             return message.reply("What?");
         } else {
-            return replies(bot, message);
+            // return replies(bot, message);
+            const c = message.content.replace(`<@${bot.user.id}>`, "").toLowerCase().trim();
+            var s = (bot.customReplyList.has(c)) ? bot.customReplyList.get(c) : "??????????";
+            // default: s = "I'm not sure what that means! Please use `/help` for a comprehensive list of commands!\n\n_PS - If you want to make full use of the bot's AI capabilities, consider Selmer Bot Premium. See more at http://www.selmerbot.com/premium _";
+
+            message.reply(s).catch(() => { message.channel.send(s); });
         }
     }
 
