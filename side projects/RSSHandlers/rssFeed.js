@@ -134,7 +134,7 @@ function playAudio(bot, message, user, obj) {
 }
 
 
-
+//FIXME
 async function getAndFormatRSS(bot, message, user, inp) {
 
     message.reply(inp).catch((err) => { message.channel.send(inp); console.error(err); });
