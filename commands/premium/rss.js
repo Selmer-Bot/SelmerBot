@@ -4,15 +4,9 @@ const concat = require('concat-stream');
 const { Interaction, ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const { mapToTableRecursive } = require('../utils/jsonFormatters.js');
 const { isValidUrl } = require('../dev only/setPresence.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 const parser = new xml2js.Parser();
-
-function intrep(interaction, mcontent, e) {
-    interaction.reply({content: mcontent, ephemeral: e})
-    .catch(() => {
-        interaction.channel.send(mcontent);
-    });
-}
 
 
 async function addFeed(bot, interaction, options, mclient) {

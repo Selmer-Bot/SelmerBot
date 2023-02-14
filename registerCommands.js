@@ -21,23 +21,13 @@ function registerCommands(bot) {
         //#region Slash Commands
         bot.commands.forEach((val, key) => {
             if ((val.options && val.name != 'econ') || val.isDm) {
-                if (val.isDm) {
-                    commands.create({
-                        name: val.name,
-                        description: val.description,
-                        type: ApplicationCommandType.ChatInput,
-                        options: val.options,
-                        dm_permission: true,
-                    });
-                } else {
-                    commands.create({
-                        name: val.name,
-                        description: val.description,
-                        type: ApplicationCommandType.ChatInput,
-                        options: val.options,
-                        dm_permission: false,
-                    });
-                }
+                commands.create({
+                    name: val.name,
+                    description: val.description,
+                    type: ApplicationCommandType.ChatInput,
+                    options: val.options,
+                    dm_permission: (val.isDm == true),
+                });
             } else {
                 // console.log(val, key);
                 console.log(key);
