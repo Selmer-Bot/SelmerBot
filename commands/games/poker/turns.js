@@ -317,9 +317,9 @@ async function raise(bot, interaction, args) {
 
 
 //BROKEN
-function addCard(gbo, d, card) {
-    gbo.updateOne({ "players.user": d.user }, { $push: { "players.cards": card } }).then((conf) => {
-        gbo.updateOne({ pending: uid }, { $pull: { "genDeck": { $in: [card] } } });
+function addCard(gbo, user, card) {
+    gbo.updateOne({ "players.user": user }, { $push: { "players.cards": card } }).then((conf) => {
+        gbo.updateOne({ "players.user": user }, { $pull: { "genDeck": { $in: [card] } } });
     });
 }
 

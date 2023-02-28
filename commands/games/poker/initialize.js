@@ -4,6 +4,7 @@ const path = require('path');
 const { CreateNewCollection, STATE } = require('../../db/econ');
 const {Hand, Card} = require('./classes.js');
 const wait = require('node:timers/promises').setTimeout;
+const {Collection} = require('discord.js');
 
 const deckMain = new Hand();
 function setUpDeckMain() {

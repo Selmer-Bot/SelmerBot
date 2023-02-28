@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-check
 const { ChannelType, Interaction } = require('discord.js');
 const { CreateNewCollection, STATE } = require('../../db/econ');
 const { winGame } = require('../external_game_functions');
