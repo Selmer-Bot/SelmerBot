@@ -19,6 +19,7 @@ const { setPresence } = require('./commands/dev only/setPresence.js');
 const { exit } = require('process');
 const {textToLevels} = require('./commands/Selmer Specific/msgLevels.js');
 const scheduled = require('./commands/dev only/scheduled.js');
+const handleNoPermissions = require('./commands/dev only/noPermissions.js');
 //#endregion
 
 const BASE_LVL_XP = 20;
@@ -140,15 +141,8 @@ process.on('uncaughtException', async (signal) => {
     
     if (signal.rawError) {
         if (signal.rawError.message.toLowerCase() == 'missing permissions') {
-            var guildId = signal.url;
-            const startind = guildId.indexOf('guilds/') + 7;
-            guildId = guildId.substring(startind, guildId.indexOf('/', startind));
-            
-            const guild = bot.guilds.cache.get(guildId);
-            const ownerTemp = await bot.guilds.cache.get(guildId).fetchOwner();
-            
-            ownerTemp.send(codeBlock("Selmer Bot is missing permissions!\nMy guess would be he doesn't have access to role management.....\n\nPlease try adding him again with correct permissions!"));
-            guild.leave();
+            //handleNoPermissions(bot, signal.url, token);
+            console.log(signal);
             return;
         }
     }
@@ -415,7 +409,7 @@ bot.on('guildMemberAdd', async (member) => {
 
     const guild = bot.guilds.cache.get(member.guild.id);
 
-    bot.mongoconnection.then(client => {
+    bot.mongoconnection.then(async (client) => {
         const dbo = client.db(member.guild.id).collection('SETUP');
 
         dbo.findOne({_id: 'WELCOME'}).then(async (doc) => {
@@ -434,7 +428,16 @@ bot.on('guildMemberAdd', async (member) => {
 
             await welcome(member, welcomechannel, doc.welcomemessage, doc.welcomebanner, (doc.welcometextcolor) ? doc.welcometextcolor : "#FFFFFF");
         });
-    })
+
+        const autoRoleDoc = await dbo.findOne({_id: "AUTOROLE"});
+
+        for (let roleId of autoRoleDoc.roles) {
+            const role = guild.roles.cache.get(roleId);
+            if (!role) continue;
+
+            member.roles.add(role);
+        }
+    });
 });
 
 
