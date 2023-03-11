@@ -430,6 +430,7 @@ bot.on('guildMemberAdd', async (member) => {
         });
 
         const autoRoleDoc = await dbo.findOne({_id: "AUTOROLE"});
+        if (!autoRoleDoc || !autoRoleDoc.roles) { return; }
 
         for (let roleId of autoRoleDoc.roles) {
             const role = guild.roles.cache.get(roleId);
