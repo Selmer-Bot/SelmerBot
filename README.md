@@ -2,7 +2,7 @@
 
 Author: ION606
 
-### Node Packages Installation Instructions
+### npm Packages Installation Instructions
 Download the _package.json_ file from the repo using
 `npm install`
 
