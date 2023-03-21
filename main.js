@@ -59,7 +59,7 @@ if (process.env.token != undefined) {
 
 //#endregion
 
-const bot = new Client({ 
+const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
@@ -165,7 +165,7 @@ process.on('uncaughtException', async (signal) => {
     const owner = guild.members.cache.get(guild.ownerId);
     preverr = signal.stack.toString();
 
-    owner.send(`${owner} SELMER BOT IS DOWN!!!`).then(() => {
+    // owner.send(`${owner} SELMER BOT IS DOWN!!!`).then(() => {
         guild.channels.cache.get("1054550753982828624").send(`<@&944048889038774302> Selmer Bot is down!\n***ERROR STACK:***\n`).then(() => {
             guild.channels.cache.get("1054550753982828624").send(`\`\`\`${preverr}\`\`\`\nTHIS ERROR HAS OCCURED {1} TIMES IN A ROW`).then((msg) => {
                 errmsg = msg;
@@ -174,7 +174,7 @@ process.on('uncaughtException', async (signal) => {
                 bot.user.setStatus('dnd');
             });
         });
-    });
+    // });
 });
 
 //#endregion
@@ -397,7 +397,6 @@ bot.on("guildDelete", guild => {
         }
     })
 });
-
 
 
 //Welcome new members

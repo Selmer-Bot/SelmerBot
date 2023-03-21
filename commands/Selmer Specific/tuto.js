@@ -81,11 +81,7 @@ function postEmbd(bot, interaction, page, refered) {
     if (page > 0 || refered) {
         const c = { content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row], ephemeral: true };
 
-        try {
-            interaction.update(c);
-        } catch {
-            interaction.reply(c).catch(() => { interaction.channel.send(c); });
-        }
+        interaction.update(c).catch(() => { interaction.channel.send(c); });
     } else {
         const c = { content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row], ephemeral: true };
         interaction.reply(c).catch(() => { interaction.channel.send(c); });
