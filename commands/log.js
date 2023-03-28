@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { intrep } = require('./utils/discordUtils');
 const SEVCODES = {
     none: 0,
     low: 1,
@@ -16,7 +17,7 @@ function log(bot, interaction, command, mentioned, reason, severity) {
         // if (err) { return console.log(err); }
 
         client.db(interaction.guildId).collection('SETUP').findOne({_id: 'LOG'}).then((doc) => {
-            if (!doc) { return interaction.reply("Server logs not set up yet!"); }
+            if (!doc) { return intrep(interaction, "Server logs not set up yet!"); }
             const channel = interaction.guild.channels.cache.get(doc.logchannel);
 
             if (!channel) { return console.log("There is no specified log channel!"); }

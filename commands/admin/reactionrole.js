@@ -2,6 +2,7 @@ const {Interaction, ApplicationCommandOptionType, ModalBuilder, TextInputBuilder
 const { checkRole } = require('./verify.js');
 const { isValidUrl } = require('../dev only/setPresence.js');
 const embdList = [{name: 'Title'}, {name: 'Image', desc: 'The image url'}, {name: 'Thumbnail', desc: 'The thumbnail url'}, {name: 'URL'}, {name: 'Description', desc: 'Use {ROLE} to insert the role'}];
+const { intrep } = require('../utils/discordUtils.js');
 
 
 async function postForm(interaction, role, useEmoji, txt) {
@@ -119,7 +120,7 @@ function processForm(interaction, bot) {
         interaction.channel.send({embeds: [embd], components: [row]})
     }
 
-    interaction.reply({content: "Reaction role added!", ephemeral: true});
+    intrep("Reaction role added!", true);
 }
 
 
@@ -131,7 +132,7 @@ function handleBtn(interaction) {
     const roleId = interaction.customId.split('|')[1];
     const user = interaction.guild.members.cache.get(interaction.user.id);
     if (user.roles.cache.has(roleId)) {
-        return interaction.reply({content: "You already have this role!", ephemeral: true});
+        return intrep(interaction, "You already have this role!", true);
     }
 
     user.roles.add(roleId);
@@ -158,16 +159,14 @@ module.exports = {
                 if (txt.startsWith('<:') && txt.endsWith(">")) {
                     const emoji = interaction.guild.emojis.cache.get(txt.split(":")[2].split(">")[0]);
                     
-                    if (!emoji) { return interaction.reply("Please use a valid emoji"); }
+                    if (!emoji) { return intrep("Please use a valid emoji"); }
 
                     txt = txt.split(":")[2].split(">")[0];
                 }
 
                 if (role.position >= interaction.guild.me.roles.highest.position ||!interaction.guild.me.permissions.has("MANAGE_ROLES")) {
-                    return interaction.reply({
-                    content: "I'm not high enough in the role hierarchy to do that!\n_To raise my place, go to **Server Settings -> Roles** then drag me up!_",
-                    ephemeral: true
-                  });
+                    return intrep(interaction, "I'm not high enough in the role hierarchy to do that!\n_To raise my place, go to **Server Settings -> Roles** then drag me up!_",
+                    true);
                 }
 
                 postForm(interaction, role, useEmoji, txt);

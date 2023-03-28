@@ -1,8 +1,10 @@
+const { intrep } = require("../utils/discordUtils");
+
 module.exports = {
     name: 'serverlock',
     description: 'Lock ALL CHANNELS for everyone with the "everyone" role - SERVER OWNER ONLY!',
     execute(interaction, Discord, Client, bot) {
-        if (interaction.guild.ownerId != interaction.user.id) { return interaction.reply('Insufficient Permissions!'); }
+        if (interaction.guild.ownerId != interaction.user.id) { return intrep(interaction, 'Insufficient Permissions!'); }
 
         const role = interaction.guild.roles.cache.find(r => r.name === "@everyone");
         const arr = [];
@@ -27,7 +29,7 @@ module.exports = {
         
         bot.lockedChannels.set(interaction.guildId, arr);
 
-        interaction.reply(`***SERVER LOCKED BY ${interaction.user}***`);
+        intrep(interaction, `***SERVER LOCKED BY ${interaction.user}***`);
     }, options: []
 }
 

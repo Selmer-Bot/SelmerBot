@@ -1,5 +1,6 @@
 //@ts-check
 const { log, SEVCODES } = require('../log.js');
+const { intrep } = require('../utils/discordUtils.js');
 const { checkRole } = require('./verify.js');
 
 
@@ -55,18 +56,18 @@ function toggle_mute(bot, guild, command, interaction, user, reason, mute) {
     const mutedRole = guild.roles.cache.find((role) => role.name.toLowerCase() === 'muted');
        const guser = guild.members.cache.get(user.id);
        // if there is no `Muted` role, send an error
-       if (!mutedRole) { return interaction.reply('There is no "muted" role on this server. Please create one then try again'); }
+       if (!mutedRole) { return intrep(interaction, 'There is no "muted" role on this server. Please create one then try again'); }
 
        if (mute) {
             if (guser.roles.cache.get(mutedRole.id) == undefined) {
                 guser.roles.add(mutedRole);
                 log(bot, interaction, command, user, reason, SEVCODES.low);
-            } else { interaction.reply("This user is already muted!"); }
+            } else { intrep(interaction, "This user is already muted!"); }
        } else {
             if (guser.roles.cache.get(mutedRole.id) != undefined) {
                 guser.roles.remove(mutedRole);
                 log(bot, interaction, command, user, reason, SEVCODES.none);
-            } else { interaction.reply("This user is not muted!"); }
+            } else { intrep(interaction, "This user is not muted!"); }
        }
 
        /*
@@ -99,10 +100,10 @@ function moderation_handler(bot, interaction, command) {
 
     //Verify
     checkRole(bot, guild, interaction.user.id).then((isAllowed) => {
-        if (!isAllowed) { return interaction.reply('Insufficient Permission!'); }
+        if (!isAllowed) { return intrep(interaction, 'Insufficient Permission!'); }
 
         const mentioned = interaction.options.data.filter((arg) => { return (arg.name == 'user'); })[0].user;
-        if (mentioned && mentioned.id == interaction.user.id) { return interaction.reply(`You can't ${command} yourself!`); }
+        if (mentioned && mentioned.id == interaction.user.id) { return intrep(interaction, `You can't ${command} yourself!`); }
 
         const reasonInit = interaction.options.data.filter((arg) => { return (arg.name == 'reason'); })[0];
         const reason = (reasonInit) ? reasonInit.value : "None";
@@ -110,7 +111,7 @@ function moderation_handler(bot, interaction, command) {
         const user = guild.members.resolve(mentioned.id);
 
         if (user && (user.roles.highest.position > guild.members.resolve(bot.user).roles.highest.position)) {
-            return interaction.reply("I'm not high enough in the role hierarchy to do that!\n_To raise my place, go to **Server Settings -> Roles** then drag me up!_");
+            return intrep(interaction, "I'm not high enough in the role hierarchy to do that!\n_To raise my place, go to **Server Settings -> Roles** then drag me up!_");
         }
 
         
@@ -129,7 +130,7 @@ function moderation_handler(bot, interaction, command) {
             break;
 
             //Leave the then() catch() thing, it needs to be async
-            case 'unban': toggle_ban(guild, interaction, false, reason).then((user) => { log(bot, interaction, command, user, reason, SEVCODES.none)}).catch((note) => { interaction.reply(note); });
+            case 'unban': toggle_ban(guild, interaction, false, reason).then((user) => { log(bot, interaction, command, user, reason, SEVCODES.none)}).catch((note) => { intrep(interaction, note); });
             break;
 
             case 'mute': toggle_mute(bot, guild, command, interaction, mentioned, reason, true);

@@ -9,7 +9,10 @@ module.exports = {
         const guild = bot.guilds.cache.get(interaction.guildId);
 
         checkRole(bot, guild, interaction.user.id).then((isAllowed) => {
-            if (isAllowed) { return interaction.reply('Insufficient Permissions!'); }
+            if (isAllowed) {
+                return interaction.reply({content: 'Insufficient Permissions!', ephemeral: true})
+                .catch(() => interaction.channel.send('Insufficient Permissions!'));
+            }
 
             var channel;
             if (arg) {
@@ -26,7 +29,8 @@ module.exports = {
                 ATTACH_FILES: false
             });
 
-            interaction.reply(`${channel} has been locked!`);
+            interaction.reply(`${channel} has been locked!`)
+            .catch(() => interaction.channel.send(`${channel} has been locked!`));
         });
     },
     options: [{name: 'channel', description: 'The channel to lock (defaults to current channel)', type: ApplicationCommandOptionType.Channel, required: false}]

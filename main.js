@@ -146,6 +146,9 @@ process.on('uncaughtException', async (signal) => {
             return;
         }
     }
+    else if (signal.message.toLowerCase().indexOf('unknown interation') != -1) {
+        return;
+    }
 
     //Check if this was the last err and if so, ignore
     else if (preverr == signal.stack.toString()) {
@@ -280,7 +283,8 @@ bot.on('ready', async () => {
 bot.on('interactionCreate', async interaction => {
     const { commandName } = interaction;
     if (!botIsReady) {
-        return interaction.reply("The bot is still warming up. This is process can take up to 5 minutes. Please try again in a bit! \:(");
+        const errep = "The bot is still warming up. This is process can take up to 5 minutes. Please try again in a bit! \:(";
+        return interaction.reply(errep).channel.send(errep);
     }
 
     //Slash commands

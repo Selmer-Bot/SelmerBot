@@ -5,6 +5,7 @@ const { CreateNewCollection } = require("../db/econ");
 const { checkRole } = require('./verify.js');
 const fetch = require('node-fetch');
 const help = require('../Selmer Specific/help.js');
+const { intrep } = require('../utils/discordUtils');
 
 
 /**
@@ -20,10 +21,7 @@ function checkIfRoleHigher(bot, interaction, role) {
     const otherRolePos = guild?.roles.cache.get(role.id).position;
 
     if (otherRolePos >= myRolePost) {
-        interaction.reply({
-            content: "I don't have permissions to grant this role!",
-            ephemeral: true
-          });
+        intrep(interaction, "I don't have permissions to grant this role!", true);
           return false;
       }
 
@@ -37,7 +35,7 @@ async function execute(interaction, Discord, Client, bot) {
     const args = interaction.options.data[0].options;
 
     if (interaction.user.id != interaction.guild.ownerId) {
-        return interaction.reply({content: 'Only the server owner can do this!', ephemeral: true});
+        return intrep(interaction, 'Only the server owner can do this!', true);
     }
 
     bot.mongoconnection.then(async (client) => {
@@ -47,7 +45,7 @@ async function execute(interaction, Discord, Client, bot) {
         const db = client.db(server);
         const dbo = db.collection('SETUP');
 
-        if (args.length < 1) { return interaction.reply({content: "Please chose a valid option", ephemeral: true}); }
+        if (args.length < 1) { return intrep(interaction, "Please chose a valid option", true); }
 
         for (let i = 0; i < args.length; i++) {
             try {
@@ -61,23 +59,23 @@ async function execute(interaction, Discord, Client, bot) {
     
                         dbo.updateOne({ _id: 'LOG'}, {$set: {keepLogs: keeplogs}});
     
-                        interaction.reply({content: `Toggled log keeping to ${keeplogs}. Please use _!setup log_channel_ to choose the log channel`, ephemeral: true});
+                        intrep(interaction, `Toggled log keeping to ${keeplogs}. Please use _!setup log_channel_ to choose the log channel`, true);
                     }
                     else if (subCommand == 'log_channel') {
                         const channel = args[i].channel;
-                        if (!channel) { return interaction.reply({content: 'The specified channel does not exist!', ephemeral: true}); }
+                        if (!channel) { return intrep(interaction, 'The specified channel does not exist!', true); }
     
                         dbo.updateOne({_id: 'LOG'}, {$set: {logchannel: `${channel.id}`}});
-                        interaction.reply({content: `Made ${channel} the new Selmer Bot Logs channel!`, ephemeral: true});
+                        intrep(interaction, `Made ${channel} the new Selmer Bot Logs channel!`, true);
                     }
                     else if (subCommand == 'log_severity') {
                         const tier = args[i].value;
                         const l = ['none', 'low', 'medium', 'high'];
-                        if (!l.includes(tier)) { return interaction.reply({content: "Please select an existing tier ('none', 'low', 'medium', 'high')", ephemeral: true}); }
+                        if (!l.includes(tier)) { return intrep(interaction, "Please select an existing tier ('none', 'low', 'medium', 'high')", true); }
     
                         dbo.updateOne({_id: 'LOG'}, {$set: {severity: tier}})
     
-                        interaction.reply({content: `Severity updated to ${tier}`, ephemeral: true});
+                        intrep(interaction, `Severity updated to ${tier}`, true);
                     }
                 }
                 else if (command == "announcement") {
@@ -91,14 +89,14 @@ async function execute(interaction, Discord, Client, bot) {
                         // const role = message.mentions.roles.first().id;
                         dbo.updateOne({_id: 'announcement'}, { $set: { 'role': role.id } });
     
-                        interaction.reply({content: `Role updated to ${role}`, ephemeral: true});
+                        intrep(interaction, `Role updated to ${role}`, true);
                     }
                     else if (subCommand == "ping_channel") {
                         const channel = args[i].channel;
-                        if (!channel) { return interaction.reply({content: 'The specified channel does not exist!', ephemeral: true}); }
+                        if (!channel) { return intrep(interaction, 'The specified channel does not exist!', true); }
     
                         dbo.updateOne({_id: 'announcement'}, { $set: { 'channel': channel.id } });
-                        interaction.reply({content: `Channel set to ${channel}`, ephemeral: true});
+                        intrep(interaction, `Channel set to ${channel}`, true);
                     }
                 }
                 else if (command == "mod_role") {
@@ -127,12 +125,12 @@ async function execute(interaction, Discord, Client, bot) {
                         const channel = args[i].channel;
     
                         dbo.updateOne({welcomechannel: {$exists: true}}, {$set: {welcomechannel: `${channel.id}`}});
-                        interaction.reply({content: `Set ${channel} as the new welcome channel`, ephemeral: true})
+                        intrep(interaction, `Set ${channel} as the new welcome channel`, true)
                     }
                     else if (subCommand == 'welcome_message') {
                         const msg = args[i].value;
     
-                        if (msg.length > 30 || msg.length < 1) { return interaction.reply({content: 'Please specify a welcome message between 0 and 30 characters!', ephemeral: true}); }
+                        if (msg.length > 30 || msg.length < 1) { return intrep(interaction, 'Please specify a welcome message between 0 and 30 characters!', true); }
                         dbo.updateOne({welcomemessage: {$exists: true}}, {$set: {welcomemessage: msg}})
                     }
                     else if (subCommand == "welcome_banner") {
@@ -141,16 +139,16 @@ async function execute(interaction, Discord, Client, bot) {
                         const arrayBuffer = await response.arrayBuffer();
                         const imgbfr = Buffer.from(arrayBuffer);
                         dbo.updateOne({_id: 'WELCOME'}, {$set: {welcomebanner: imgbfr.toString('base64')}});
-                        interaction.reply({ content: `Banner updated to ${attachement_url}`, ephemeral: true});
+                        intrep(interaction, `Banner updated to ${attachement_url}`, true);
                     }
                     else if (subCommand == "welcome_text_color") {
                         const reg = /^#[0-9A-F]{6}$/i;
                         const newCol = args[i].value;
                         if (reg.test(newCol)) {
                             dbo.updateOne({_id: 'WELCOME'}, {$set: {welcometextcolor: newCol}});
-                            interaction.reply({content: `Color updated to ${newCol} (https://www.color-hex.com/color/${newCol.substring(1)})`, ephemeral: true});
+                            intrep(interaction, `Color updated to ${newCol} (https://www.color-hex.com/color/${newCol.substring(1)})`, true);
                         } else {
-                            interaction.reply("Please chose a valid hex color\nYou can find colors here: https://www.color-hex.com/");
+                            intrep(interaction, "Please chose a valid hex color\nYou can find colors here: https://www.color-hex.com/");
                         }
                     }
                 }
@@ -181,7 +179,7 @@ async function execute(interaction, Discord, Client, bot) {
                         const tog = args[i].value;
                         console.log(tog);
                         dbo.updateOne({_id: 'LEVELING'}, {$set: {enabled: tog}});
-                        interaction.reply({content: "Turned leveling " + ((tog) ? "ON" : "OFF"), ephemeral: true});
+                        intrep(interaction, "Turned leveling " + ((tog) ? "ON" : "OFF"), true);
                     }
                     else if (subCommand == "leveling_banner") {
                         const level_banner = args[i].attachment.attachment;
@@ -189,18 +187,18 @@ async function execute(interaction, Discord, Client, bot) {
                         const arrayBuffer = await response.arrayBuffer();
                         const imgbfr = Buffer.from(arrayBuffer);
                         dbo.updateOne({_id: 'LEVELING'}, {$set: {card: imgbfr.toString('base64')}});
-                        interaction.reply({content: `Updated leveling banner to ${level_banner}`, ephemeral: true});
+                        intrep(interaction, `Updated leveling banner to ${level_banner}`, true);
                     }
                     else if (subCommand == "leveling_text") {
                         dbo.updateOne({_id: 'LEVELING'}, {$set: {text: args[i].value}});
-                        interaction.reply({content: `Updated leveling text to ${args[i].value}`, ephemeral: true});
+                        intrep(interaction, `Updated leveling text to ${args[i].value}`, true);
                     }
                     else if (subCommand == "leveling_color") {
                         const reg = /^#[0-9A-F]{6}$/i;
                         const newCol = args[i].value;
                         if (reg.test(newCol)) {
                             dbo.updateOne({_id: 'LEVELING'}, {$set: {col: newCol}});
-                            interaction.reply({content: `Color updated to ${newCol} (https://www.color-hex.com/color/${newCol.substring(1)})`, ephemeral: true});
+                            intrep(interaction, `Color updated to ${newCol} (https://www.color-hex.com/color/${newCol.substring(1)})`, true);
                         } else {
                             interaction.reply("Please chose a valid hex color\nYou can find colors here: https://www.color-hex.com/");
                         }
@@ -210,7 +208,7 @@ async function execute(interaction, Discord, Client, bot) {
                     if (args[i].value) {
                         help.execute(interaction, Discord, Client, bot);
                     } else {
-                        interaction.reply({content: 'https://docs.selmerbot.com/setup', ephemeral: true});
+                        intrep(interaction, 'https://docs.selmerbot.com/setup', true);
                     }
                 }
                 else if (command == "rss_channel") {
@@ -218,18 +216,18 @@ async function execute(interaction, Discord, Client, bot) {
                     const rssDoc = await dbo.findOne({_id: "RSS"});
                     if (!rssDoc) {
                         dbo.insertOne({_id: "RSS", feeds: []});
-                        return interaction.reply({content: `RSS feed channel updated to <#${channel}>`, ephemeral: true});
+                        return intrep(interaction, `RSS feed channel updated to <#${channel}>`, true);
                     }
 
                     dbo.updateOne({_id: "RSS"}, {$set: {channel: channel}}).then(() => {
-                        interaction.reply({content: `RSS feed channel updated to <#${channel}>`, ephemeral: true});
+                        intrep(interaction, `RSS feed channel updated to <#${channel}>`, true);
                     }).catch(() => {
-                        interaction.reply({content: "Uh oh! There's been an error!", ephemeral: true});
+                        intrep(interaction, "Uh oh! There's been an error!", true);
                     });
                 }
                 else {
                     console.log(interaction.options.data[i].name);
-                    interaction.reply({content: "Please chose a valid option", ephemeral: true});
+                    intrep(interaction, "Please chose a valid option", true);
                 }
                 /* Made obsolete by the change to Slash Commands
 
@@ -246,7 +244,7 @@ async function execute(interaction, Discord, Client, bot) {
                         temp = "To pick the announcement channel, use _/setup announcement\\_channel_\nTo pick the announcement role, use _/setup announcement\\_role_";
                     } else { temp = 'Use _/setup Please use the following format: _/setup help [welcome, logs, announcement]_\nExample: _/setup help welcome_'; }
 
-                    interaction.reply({content: temp, ephemeral: true});
+                    intrep(interaction, temp, true);
                 }*/
             } catch (err) {
                 console.error(err);
