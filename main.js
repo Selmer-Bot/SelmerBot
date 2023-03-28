@@ -146,7 +146,7 @@ process.on('uncaughtException', async (signal) => {
             return;
         }
     }
-    else if (signal.message.toLowerCase().indexOf('unknown interation') != -1) {
+    else if (signal.rawError.message.toLowerCase() == 'unknown interaction') {
         return;
     }
 
