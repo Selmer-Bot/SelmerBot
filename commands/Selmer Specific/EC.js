@@ -1,3 +1,5 @@
+const { intrep } = require('../utils/discordUtils.js');
+
 module.exports = {
     name: 'extracredit',
     description: "Selmer Bot Dm's you for some *AHEM* extra credit",
@@ -44,7 +46,7 @@ module.exports = {
         // let ID = interaction.user.id;
         // message.client.users.fetch(ID).then(user => user.send(dm));
         interaction.user.send(dm);
-        interaction.reply({content: "Extra Credit sent  😉", ephemeral: true});
+        intrep(interaction, {content: "Extra Credit sent  😉", ephemeral: true});
     },
     options: []
 }

@@ -2,6 +2,7 @@
 const { addxp, STATE, BASE } = require("../db/econ");
 const turnManger = require('../turnManager.js');
 const { addComplaintButton } = require('../dev only/submitcomplaint');
+const { intrep } = require("../utils/discordUtils");
 
 
 //#region game lose/win
@@ -10,11 +11,11 @@ function loseGame(user_dbo, xp_collection, interaction, bot, channelToDel) {
     user_dbo.find({"game": {$exists: true}}).toArray(function(err, docs) {
         const doc = docs[0];
         if (doc == undefined) { 
-            interaction.reply("Oops! There's been an error, click the ✅ to report this!");
+            intrep(interaction, "Oops! There's been an error, click the ✅ to report this!");
             addComplaintButton(bot, interaction);
             return;
         }
-        if (doc.game == null) { return interaction.reply("You're not even in a game and you're trying to quit! Sad..."); }
+        if (doc.game == null) { return intrep(interaction, "You're not even in a game and you're trying to quit! Sad..."); }
 
         var addbal;
         //If this function was called from "winGame", return
@@ -73,7 +74,7 @@ function winGame(client, bot, db, user_dbo, xp_collection, interaction, channelT
 
 
 function equipItem(client, bot, db, dbo, interaction) {
-    return interaction.reply("This command is not implemented yet!");
+    return intrep(interaction, "This command is not implemented yet!");
     if (!bot.inDebugMode) { return; }
     let items = [
         { name: 'HP Potion', cost: 20, icon: 'CUSTOM|healing_potion', sect: 'HP', num: 2 },
@@ -87,6 +88,7 @@ function equipItem(client, bot, db, dbo, interaction) {
     
     dbo.updateMany({}, {$set: {'equipped.items': items}});
 }
+
 
 function getCustomEmoji(bot, name) {
     let srv = bot.guilds.cache.get(bot.home_server).emojis.cache;

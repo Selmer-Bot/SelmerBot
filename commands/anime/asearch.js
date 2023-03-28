@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const scraper = require('mal-scraper');
+const { intrep } = require('../utils/discordUtils');
 
 
 module.exports = {
@@ -35,7 +36,7 @@ module.exports = {
                         {name: "Date Aired/Premiered", value: data.premiered || data.aired || "N/A"}
                     ).setURL(data.trailer || "");
                     
-                    interaction.reply({ embeds: [newEmbed] });
+                    intrep(interaction, { embeds: [newEmbed] });
                 } else if (style == 'fancy') {
                     let temp =  `The ${data.genres.join(", ")} anime _${data.title}_ first aired on ${data.premiered || data.aired}`;
                     if (data.aired) { temp +=  `. This anime ran for ${data.aired} for a total of ${data.episodes} episodes.`}
@@ -44,20 +45,19 @@ module.exports = {
                     temp += ` This anime has a score of ${data.score} and is ${data.popularity} on MyAnimeList!\n`;
                     temp += `You can see a trailer for ${data.title} ***[here](${data.trailer})***`;
                     // temp += `\n\n(to see a summary of the anime, use '${bot.prefix}asearch <anime name> summary')`;
-                    
-                    interaction.reply({ embeds: [new EmbedBuilder().setImage(data.picture).setDescription(temp)] });
+                    intrep(interaction, { embeds: [new EmbedBuilder().setImage(data.picture).setDescription(temp)] });
                     // message.channel.send(temp);
                 } else if (style == 'summary') {
                     let temp = data.synopsis;
-                    interaction.reply(temp);
+                    intrep(interaction, temp);
                 } else {
-                    interaction.reply(`Unknown command, try using the format '/asearch <anime name> [stats or fancy or summary]`);
+                    intrep(interaction, `Unknown command, try using the format '/asearch <anime name> [stats or fancy or summary]`);
                 }
             } catch (err) {
                 if (err.message.indexOf('field values must be non-empty strings') != -1) {
-                    interaction.reply(`Insufficient information on website!\nThe page can be found here: ${data.url}`);
+                    intrep(interaction, `Insufficient information on website!\nThe page can be found here: ${data.url}`);
                 } else {
-                    const m = interaction.reply("Uh oh, an unknown error occured, click the ✅ to report this!");
+                    const m = intrep(interaction, "Uh oh, an unknown error occured, click the ✅ to report this!");
                     
                     const { addComplaintButton } = require('../dev only/submitcomplaint');
                     m.then((msg) => {

@@ -1,5 +1,6 @@
 const { checkRole } = require('./verify.js');
 const { ApplicationCommandOptionType } = require('discord.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 module.exports = {
     name: 'lock',
@@ -10,8 +11,7 @@ module.exports = {
 
         checkRole(bot, guild, interaction.user.id).then((isAllowed) => {
             if (isAllowed) {
-                return interaction.reply({content: 'Insufficient Permissions!', ephemeral: true})
-                .catch(() => interaction.channel.send('Insufficient Permissions!'));
+                return intrep(interaction, 'Insufficient Permissions!', true);
             }
 
             var channel;
@@ -29,8 +29,7 @@ module.exports = {
                 ATTACH_FILES: false
             });
 
-            interaction.reply(`${channel} has been locked!`)
-            .catch(() => interaction.channel.send(`${channel} has been locked!`));
+            intrep(interaction, `${channel} has been locked!`);
         });
     },
     options: [{name: 'channel', description: 'The channel to lock (defaults to current channel)', type: ApplicationCommandOptionType.Channel, required: false}]

@@ -1,3 +1,5 @@
+const { intrep } = require("../utils/discordUtils");
+
 module.exports = {
     name: "links",
     description: "A helpful list of links to all of Selmer's wonderful websites",
@@ -10,6 +12,6 @@ module.exports = {
             {name: 'Personal Website', value: "http://www.logicamodernapproach.com/"}
         );
         
-        interaction.reply({ embeds: [newEmbed] });
+        intrep(interaction, { embeds: [newEmbed] });
     }, options: []
 }

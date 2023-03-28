@@ -1,11 +1,13 @@
 const { ApplicationCommandOptionType } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
+
 
 module.exports ={
     name: 'kareoke',
     description: 'Sing your least-favorite song with your favorite person, me!',
     execute(interaction, Discord, Client, bot) {
         const arg = interaction.options.data[0].value;
-        if (arg == "help") { return interaction.reply({content: "Please pick out a song at https://www.karaoke-lyrics.net/\nThe command should look like\n/kareoke [link_here]"}); }
+        if (arg == "help") { return intrep(interaction, {content: "Please pick out a song at https://www.karaoke-lyrics.net/\nThe command should look like\n/kareoke [link_here]"}); }
         // interaction.deferReply();
 
         const axios = require('axios');
@@ -33,7 +35,7 @@ module.exports ={
         })
         .catch((err) => {
             console.log(err);
-            interaction.reply("Please provide a valid url from https://www.karaoke-lyrics.net/");
+            intrep(interaction, "Please provide a valid url from https://www.karaoke-lyrics.net/");
         });
     },
     options: [{name: 'url', description: 'the url of the song or "help"', type: ApplicationCommandOptionType.String, required: true}]

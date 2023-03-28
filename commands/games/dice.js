@@ -1,4 +1,6 @@
 const { Interaction, codeBlock } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
+
 
 function roll(bot, interaction) {
     var txt = "";
@@ -8,7 +10,7 @@ function roll(bot, interaction) {
     const num = opts.filter((opt) => { return (opt.name == "amount"); })[0].value;
 
     if (num > 50 || num < 1) {
-        return interaction.reply({content: "Please choose a number between 0 and 50", ephemeral: true});
+        return intrep(interaction, {content: "Please choose a number between 0 and 50", ephemeral: true});
     }
 
     for (let i = 0; i < num; i ++) {
@@ -16,9 +18,7 @@ function roll(bot, interaction) {
     }
 
     const toSend = `Showing results for ***${num}d${type}*** rolls\n${codeBlock(txt)}`;
-    interaction.reply(toSend).catch(() => {
-        interaction.channel.send(toSend);
-    });
+    intrep(interaction, toSend);
 }
 
 module.exports = { roll }

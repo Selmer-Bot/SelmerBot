@@ -20,6 +20,7 @@ const BASE = ecoimport.BASE;
 
 const { winGame, loseGame, equipItem } = require('./external_game_functions.js');
 const { chooseClass, presentClasses } = require('./game_classes.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 //Has a list of all games (used to change player state)
 const allGames = ['battle', 'Tic Tac Toe', 'minesweeper', 'trivia'];
@@ -87,9 +88,9 @@ function getGame(interaction, db) {
 
     dbo.findOne({"game": {$exists: true}}).then((doc) => {
         if (doc.private) {
-            return interaction.reply("This user has their profile set to private!");
+            return intrep(interaction, "This user has their profile set to private!");
         } else if (doc.game == null) {
-            return interaction.reply(`<@${id}> is not currently playing a game!`);
+            return intrep(interaction, `<@${id}> is not currently playing a game!`);
         }
 
         temp = `<@${id}> is currently playing "${doc.game}"`;
@@ -98,14 +99,14 @@ function getGame(interaction, db) {
             temp += ` with <@${doc.opponent}>`
         }
 
-        interaction.reply(temp);
+        intrep(interaction, temp);
     });
 }
 
 function acceptIsValid(bot, other_discord, interaction, invUserId, message) {
 
     if (other_discord == undefined) {
-        interaction.reply("This is not a valid invite!");
+        intrep(interaction, "This is not a valid invite!");
         return false;
     }
 
@@ -123,10 +124,10 @@ function acceptIsValid(bot, other_discord, interaction, invUserId, message) {
     var minutes = Math.floor((diff/1000)/60);
     let check2 = minutes <= 5 || bot.inDebugMode;
 
-    if (!check0) { interaction.reply("really?"); }
-    else if (!check1 && check2) { interaction.reply("_INVALID USER_"); }
-    else if (check1 && !check2) { interaction.reply("_THIS INVITE EXPIRED!_"); }
-    else if (!check1 && !check2) { interaction.reply("_THIS MESSAGE HAS AN INVALID USER AND HAS EXPIRED_")}
+    if (!check0) { intrep(interaction, "really?"); }
+    else if (!check1 && check2) { intrep(interaction, "_INVALID USER_"); }
+    else if (check1 && !check2) { intrep(interaction, "_THIS INVITE EXPIRED!_"); }
+    else if (!check1 && !check2) { intrep(interaction, "_THIS MESSAGE HAS AN INVALID USER AND HAS EXPIRED_")}
 
     return (check0 && check1 && check2);
 }
@@ -136,17 +137,17 @@ function hpmp(interaction, command, dbo) {
     // throw 'THIS HAS NOT BEEN UPDATED WITH THE MOST RECENT VERSION OF THE MONGODB STRUCTURE!';
     
     dbo.find({"hpmp": {$exists: true}}).toArray(function(err, doc) {
-        interaction.reply(`You have ${String(doc[0].hpmp.hp)} hp and ${String(doc[0].hpmp.mp)} mp left!`);
+        intrep(interaction, `You have ${String(doc[0].hpmp.hp)} hp and ${String(doc[0].hpmp.mp)} mp left!`);
     });
 
     /*
     if (command == 'hp') {
         dbo.find({"hpmp": {$exists: true}}).toArray(function(err, doc) {
-            return interaction.reply(`You have ${String(doc[0].hpmp.hp)} hp left!`);
+            return intrep(interaction, `You have ${String(doc[0].hpmp.hp)} hp left!`);
         });
     } else if (command == 'mp') { 
         dbo.find({"hpmp": {$exists: true}}).toArray(function(err, doc) {
-            return interaction.reply(`You have ${String(doc[0].hpmp.MP)} mp left!`);
+            return intrep(interaction, `You have ${String(doc[0].hpmp.MP)} mp left!`);
         });
     }
     */
@@ -155,7 +156,7 @@ function hpmp(interaction, command, dbo) {
 
 function equip(interaction, inp, command, dbo, bot, shop) {
     // const inp = args[1];
-    if (!inp) { return interaction.reply("Please provide input (either a weapon for main or shield for secondary)"); }
+    if (!inp) { return intrep(interaction, "Please provide input (either a weapon for main or shield for secondary)"); }
 
     //Check if the user is already in a game
     dbo.find({'game': {$exists: true}}).toArray(function(err, docs) {
@@ -164,7 +165,7 @@ function equip(interaction, inp, command, dbo, bot, shop) {
         if (doc.game != null) {
             ret = true;
             // console.log(doc.game);
-            return interaction.reply('You can\'t equip while in a game!');
+            return intrep(interaction, 'You can\'t equip while in a game!');
         }
 
         //If the thing is a shield, add it to secondary
@@ -173,7 +174,7 @@ function equip(interaction, inp, command, dbo, bot, shop) {
                 if (docs[0] != undefined) {
                     dbo.updateOne({}, {$set: {'equipped.weapons.secondary': docs[0]}});
                 } else {
-                    interaction.reply("You don't own a shield!");
+                    intrep(interaction, "You don't own a shield!");
                 }
             });
 
@@ -185,7 +186,7 @@ function equip(interaction, inp, command, dbo, bot, shop) {
                     //Equip the weapon
                     dbo.updateOne({}, {$set: {'equipped.weapons.main': docs[0]}});
                 } else {
-                    interaction.reply(`You don't own any ${inp}s!`);
+                    intrep(interaction, `You don't own any ${inp}s!`);
                 }
             });
         }
@@ -416,37 +417,37 @@ module.exports ={
 
 //#region game-specific commands
             else {
-                if (commandName == undefined) { return interaction.reply("Please specify a game or use _!game help_"); }
+                if (commandName == undefined) { return intrep(interaction, "Please specify a game or use _!game help_"); }
 
                 //Make change to new name if necessary
                 if (commandName.replaceAll(" ", "").toLowerCase() == 'tictactoe') { commandName = 'Tic Tac Toe'; }
                 
                 //RETURN TO THIS LATER
                 if (game == 'battle' || commandName == 'battle') {
-                    if (!bot.inDebugMode) { return interaction.reply("This command is currently in development!"); }
+                    if (!bot.inDebugMode) { return intrep(interaction, "This command is currently in development!"); }
                     
                     if (command.options[0].value == interaction.user.id) {
-                        return interaction.reply("You can't invite yourself!");
+                        return intrep(interaction, "You can't invite yourself!");
                     }
                     
                     const row = getRow(`gameaccept|${command.options[0].value}|${interaction.user.id}`);
 
                     const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Battle"_. Click the button to accept the invitation!`, components: [row]};
-                    interaction.reply(content).catch((err) => interaction.channel.send(content));
+                    intrep(interaction, content);
 
                 } else if (game == 'Tic Tac Toe' || commandName == 'Tic Tac Toe') {
                     if (command.options[0].value == interaction.user.id) {
-                        return interaction.reply("You can't invite yourself!");
+                        return intrep(interaction, "You can't invite yourself!");
                     }
                     const row = getRow(`gameaccept|${command.options[0].value}|${interaction.user.id}`);
 
                     const content = {content: `${command.options[0].user}, ${interaction.user} has invited you to play _"Tic Tac Toe"_. Click the button to accept the invitation!`, components: [row]};
-                    interaction.reply(content).catch((err) => interaction.channel.send(content));
+                    intrep(interaction, content);
                 } else if (game == 'trivia' || commandName == 'trivia') {
                     trivia.execute(interaction, Discord, client, bot);
                 } else if (game == "minesweeper" || commandName == 'minesweeper') {
                     if (game == "minesweeper" && commandName == 'minesweeper') {
-                        return interaction.reply("You're already in a game!");
+                        return intrep(interaction, "You're already in a game!");
                     }
 
                     const diff = command.options.filter((opt) => { return (opt.name == 'difficulty'); })[0].value;
@@ -454,12 +455,12 @@ module.exports ={
 
                     if (op && op[0]) {
                         if (op[0].user.id == interaction.user.id) {
-                            return interaction.reply("You can't invite yourself!");
+                            return intrep(interaction, "You can't invite yourself!");
                         }
                         
                         const row = getRow(`gameaccept|${diff}|${interaction.user.id}|${op[0].user.id}`);
                         const content = {content: `${op[0].user}, ${interaction.user} has invited you to play _"Minesweeper"_. Click the button to accept the invitation!`, components: [row]};
-                        interaction.reply(content).catch((err) => interaction.channel.send(content));
+                        intrep(interaction, content);
                     } else {
                         const threadname = `${interaction.user.username} is playing Minesweeper`;
                         const thread = await interaction.channel.threads.create({
@@ -479,7 +480,7 @@ module.exports ={
 
                 //Catch statement (invalid command)
                 else {
-                    interaction.reply(`'/game ${commandName}' is not a command!`);
+                    intrep(interaction, `'/game ${commandName}' is not a command!`);
                 }
             }
 //#endregion

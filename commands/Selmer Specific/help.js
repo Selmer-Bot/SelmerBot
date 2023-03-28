@@ -1,6 +1,8 @@
 const { modHelp } = require('../admin/moderation.js');
 const { ApplicationCommandOptionType } = require('discord.js');
 const tuto = require('./tuto.js');
+const { intrep } = require('../utils/discordUtils.js');
+
 
 //CHANGE THIS TO FORMS?
 module.exports ={
@@ -43,7 +45,7 @@ module.exports ={
             let temp = "***Selmer Bot Commands (Econ):***\n";
             temp += bot.commands.get('econ').econHelp();
             temp += `\n\n(remember to use \`/\` before the command!)`;
-            return interaction.reply({ content: temp, ephemeral: true });
+            return intrep(interaction, { content: temp, ephemeral: true });
 
         } 
         else if (spec == 'game') {
@@ -51,7 +53,7 @@ module.exports ={
             temp += bot.commands.get('game').allGames.join(", ");
             // temp += `\n\n_Note: due to how complicated this feature is, it will not be migrated to slash commands for now_`;
             temp += `\n\n(remember to use \'/\' before the command!)`;
-            return interaction.reply({ content: temp, ephemeral: true });
+            return intrep(interaction, { content: temp, ephemeral: true });
             
         }
         else if (spec == 'admin') {
@@ -68,7 +70,7 @@ module.exports ={
             temp += '\n_setup_ - ***SERVER OWNER ONLY*** - use \`setup help\`\n';
             temp += `\n\n(remember to use \`/\` before the command!)`;
 
-            return interaction.reply({ content: temp, ephemeral: true });
+            return intrep(interaction, { content: temp, ephemeral: true });
         }
 
         let temp = "***Selmer Bot Commands:***\n";
@@ -107,7 +109,7 @@ module.exports ={
 
         temp += `\n_(remember to use \`/\` before the command!)_`;
 
-        interaction.reply({ content: temp, ephemeral: true });
+        intrep(interaction, { content: temp, ephemeral: true });
     },
     options: [
         {name: 'command', description: 'the section to look at', type: ApplicationCommandOptionType.String, required: false, choices: [

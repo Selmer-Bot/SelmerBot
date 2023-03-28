@@ -1,8 +1,16 @@
 function intrep(interaction, mcontent, e) {
-    interaction.reply({content: mcontent, ephemeral: e})
-    .catch(() => {
-        interaction.channel.send(mcontent);
-    });
+    if (typeof mcontent == 'string') {
+        interaction.reply({content: mcontent, ephemeral: e})
+        .catch(() => {
+            interaction.channel.send(mcontent);
+        });
+    }
+    else {
+        interaction.reply(mcontent)
+        .catch(() => {
+            interaction.channel.send(mcontent);
+        });
+    }
 }
 
 module.exports = {intrep}

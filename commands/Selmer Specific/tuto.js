@@ -1,5 +1,6 @@
 // @ts-check
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 //Intro, setup/logging, Econ, Moderation, anime/manga, games, Selmer Specific, Misc, DMS/Premium
 const tutoText = [
@@ -84,7 +85,7 @@ function postEmbd(bot, interaction, page, refered) {
         interaction.update(c).catch(() => { interaction.channel.send(c); });
     } else {
         const c = { content: '_Note: To see a full list of reminder stats visit selmerbot.com _', embeds: [te], components: [row], ephemeral: true };
-        interaction.reply(c).catch(() => { interaction.channel.send(c); });
+        intrep(interaction, c);
     }
 }
 

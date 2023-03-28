@@ -1,4 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 module.exports = {
     name: 'repo',
@@ -27,7 +28,7 @@ module.exports = {
             .setCustomId("sbtutorial")
         ]);
 
-        interaction.reply({ embeds: [embd], components: [row] });
+        intrep(interaction, { embeds: [embd], components: [row] });
     }, options: [],
     isDm: true
 }

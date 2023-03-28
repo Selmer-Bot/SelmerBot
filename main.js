@@ -209,6 +209,7 @@ fs.readdirSync('./commands')
 let temp_command = require("./commands/db/econ.js");
 const { STATE } = require('./commands/db/econ.js');
 const replies = require('./commands/Selmer Specific/replies.js');
+const { intrep } = require('./commands/utils/discordUtils.js');
 bot.commands.set('econ', temp_command);
 temp_command = require('./commands/games/game.js');
 bot.commands.set('game', temp_command);
@@ -284,7 +285,7 @@ bot.on('interactionCreate', async interaction => {
     const { commandName } = interaction;
     if (!botIsReady) {
         const errep = "The bot is still warming up. This is process can take up to 5 minutes. Please try again in a bit! \:(";
-        return interaction.reply(errep).channel.send(errep);
+        return intrep(interaction, errep);
     }
 
     //Slash commands
@@ -297,9 +298,7 @@ bot.on('interactionCreate', async interaction => {
             if (interaction.user.id == bot.guilds.cache.get(bot.home_server).ownerId) {
                 setPresence(bot, interaction);
             } else {
-                return interaction.reply({ content: "HAHAHAHAHAHAHAHAHAHAHA\n\nno.", ephemeral: true }).catch((err) => {
-                    interaction.channel.send({ content: "HAHAHAHAHAHAHAHAHAHAHA\n\nno.", ephemeral: true });
-                });
+                return intrep(interaction, "HAHAHAHAHAHAHAHAHAHAHA\n\nno.", true);
             }
         } else if (logable.includes(commandName)) {
             moderation_handler(bot, interaction, commandName);
@@ -314,7 +313,7 @@ bot.on('interactionCreate', async interaction => {
         } else if (bot.commands.has(commandName)) {
             bot.commands.get(commandName).execute(interaction, Discord, Client, bot);
         } else {
-            interaction.reply("Unknown command detected!");
+            intrep(interaction, "Unknown command detected!", true);
         }
     } else if (interaction.isContextMenuCommand()) {
         return handleContext(bot, interaction);

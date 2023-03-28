@@ -4,6 +4,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 const request = require('request');
 const { verPremium } = require('../premium/verifyPremium.js');
 const { isValidUrl } = require('../dev only/setPresence.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 
 //#region SET REMINDERS
@@ -188,14 +189,14 @@ function readFileAndParse(url, bot, interaction, gid, uid) {
                             const r1 = { content: `ITEMS NOT ADDED:\n${notAdded.join("\n")}`, ephemeral: true }
 
                             if (r1.content != "ITEMS NOT ADDED:\n") {
-                                interaction.reply(r1).catch((err) => { interaction.channel.send(r1); });
+                                intrep(interaction, r1);
                             } else {
                                 const r2 = `All ${arr.length} items added to calendar!`;
-                                interaction.reply(r2).catch((err) => { interaction.channel.send(r2); });
+                                intrep(interaction, r2);
                             }
                         });
                     }).catch((err) => {
-                        interaction.reply(err);
+                        intrep(interaction, err);
                     })
                 }).catch((err) => {
                     console.log(err);
@@ -203,7 +204,7 @@ function readFileAndParse(url, bot, interaction, gid, uid) {
             }
         } catch (err) {
             console.log(err);
-            interaction.reply({ content: "Uh oh, there's been an error!", ephemeral: true});
+            intrep(interaction, { content: "Uh oh, there's been an error!", ephemeral: true});
         }
     });
 }
@@ -220,7 +221,7 @@ module.exports = {
             const url = interaction.options.data[0].attachment.attachment;
 
             if (!url.endsWith(".ics")) {
-                return interaction.reply("Please use a valid ***.ics*** file!")
+                return intrep(interaction, "Please use a valid ***.ics*** file!")
             }
             
             let uid, gid;
@@ -231,7 +232,7 @@ module.exports = {
             }
             readFileAndParse(url, bot, interaction, gid, uid);
         }).catch(() => {
-            interaction.reply("You have to be a premium subscriber to use this feature!");
+            intrep(interaction, "You have to be a premium subscriber to use this feature!");
         });
     },
     options: [

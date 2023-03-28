@@ -107,15 +107,15 @@ async function execute(interaction, Discord, Client, bot) {
                             const role = args[i].value;
                             if (!doc.commands.includes(role)) {
                                 dbo.updateOne({_id: "roles"}, { $push: { commands: role } });
-                                interaction.reply({ content: "Role added!", ephemeral: true });
+                                intrep(interaction, "Role added!", true);
                             } else {
-                                interaction.reply({ content: "This role is already a command role!", ephemeral: true });
+                                intrep(interaction, "This role is already a command role!", true);
                             }
                         });
                     }
                     else if (subCommand == "remove_mod_role") {
                         dbo.updateOne({_id: "roles"}, { $pull: { commands: { $in: [ args[i].value ] }} });
-                        interaction.reply({ content: "Role removed!", ephemeral: true });
+                        intrep(interaction, "Role removed!", true);
                     }
                 }
                 else if (command == "welcome") {
@@ -162,14 +162,14 @@ async function execute(interaction, Discord, Client, bot) {
                                 dbo.insertOne({_id: "AUTOROLE", roles: [role] });
                             } else if (!doc.roles.includes(role)) {
                                 dbo.updateOne({_id: "AUTOROLE"}, { $push: { roles: role } });
-                                interaction.reply({ content: "Role added!", ephemeral: true });
+                                intrep(interaction, "Role added!", true);
                             } else {
-                                interaction.reply({ content: "This role is already a command role!", ephemeral: true });
+                                intrep(interaction, "This role is already a command role!", true);
                             }
                         });
                     } else {
                         dbo.updateOne({_id: "AUTOROLE"}, { $pull: { roles: { $in: [ args[i].value ] }} });
-                        interaction.reply({ content: "Role removed!", ephemeral: true });
+                        intrep(interaction, "Role removed!", true);
                     }
                 }
                 else if (command == "leveling") {
@@ -200,7 +200,7 @@ async function execute(interaction, Discord, Client, bot) {
                             dbo.updateOne({_id: 'LEVELING'}, {$set: {col: newCol}});
                             intrep(interaction, `Color updated to ${newCol} (https://www.color-hex.com/color/${newCol.substring(1)})`, true);
                         } else {
-                            interaction.reply("Please chose a valid hex color\nYou can find colors here: https://www.color-hex.com/");
+                            intrep(interaction, "Please chose a valid hex color\nYou can find colors here: https://www.color-hex.com/");
                         }
                     }
                 }

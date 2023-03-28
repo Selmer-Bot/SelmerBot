@@ -8,6 +8,7 @@ https://selmer-bot-listener.ion606.repl.co
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { ActionRowBuilder, StringSelectMenuBuilder, ApplicationCommandOptionType } = require('discord.js');
 const { addComplaintButton } = require('../dev only/submitcomplaint');
+const { intrep } = require('../utils/discordUtils');
 
 
 //Called from the dropdown menu
@@ -113,9 +114,7 @@ async function changeSubscriptionManual(bot, interaction) {
             customer: userID,
             return_url: "https://linktr.ee/selmerbot",
         }).then((session) => {
-            interaction.reply({content: session.url, ephemeral: true}).catch(() => {
-                interaction.channel.send({content: session.url, ephemeral: true});
-            });
+            intrep(interaction, {content: session.url, ephemeral: true});
         })
     }).catch((err) => {
         if (String(typeof(err)) == 'string') {
@@ -162,7 +161,7 @@ function createDropDown(bot, interaction) {
                 .addOptions(vl)
         );
     
-        interaction.reply({ content: `Please choose a tier`, components: [row], ephemeral: true });
+        intrep(interaction, { content: `Please choose a tier`, components: [row], ephemeral: true });
     });
   });
 }
@@ -171,7 +170,7 @@ function createDropDown(bot, interaction) {
 function handleInp(bot, interaction) {
     const inp = interaction.options.data[0];
     if (!inp || inp.value == 'help') {
-      interaction.reply({content: 'Use `/premium buy` to get premium or use `/premium manage` to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at *https://stripe.com/ *_', ephemeral: true});
+        intrep(interaction, {content: 'Use `/premium buy` to get premium or use `/premium manage` to change or cancel your subscription\n\n_Disclaimer: Selmer Bot uses Stripe to manage payments. Read more at *https://stripe.com/ *_', ephemeral: true});
     } else if (inp.value == 'buy') {
       createDropDown(bot, interaction);
     } else if (inp.value == 'manage') {

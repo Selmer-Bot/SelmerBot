@@ -4,6 +4,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 const { URL } = require("url");
 const axios = require('axios');
 const { isValidUrl } = require('../dev only/setPresence.js');
+const { intrep } = require("../utils/discordUtils");
 
 
 module.exports ={
@@ -14,9 +15,7 @@ module.exports ={
         const url = interaction.options.data[0].value;
 
         if (!isValidUrl(url)) {
-          return interaction.reply("Please enter a valid url").catch((err) => {
-            interaction.channel.send("Please enter a valid url");
-          });
+          return intrep(interaction, "Please enter a valid url");
         }
 
         axios(url)
@@ -26,16 +25,16 @@ module.exports ={
             //lyrics = $('.para_row').text();
 
             const haste = await hastebin(html, { extension: "txt" });
-            interaction.reply(haste);
+            intrep(interaction, haste);
           //  console.log(lyrics);
           })
           .catch(function(err) {
             if (err.message.indexOf('The "url" argument must be of type string') != -1) {
-              interaction.reply("The URL should be a string!");
+              intrep(interaction, "The URL should be a string!");
             } else if (err.code == 'ERR_BAD_REQUEST') {
-              interaction.reply("404 link not valid!")
+              intrep(interaction, "404 link not valid!")
             } else {
-              const m = interaction.reply("Oops! There's been an error, click the ✅ to report this!");
+              const m = intrep(interaction, "Oops! There's been an error, click the ✅ to report this!");
 
               m.then((msg) => {
                 addComplaintButton(bot, msg);

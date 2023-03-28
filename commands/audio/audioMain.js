@@ -4,6 +4,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ApplicationC
 const play = require('play-dl');
 const { getPlaylistUrls } = require('./addPlaylist.js');
 const { verPremium } = require('../premium/verifyPremium.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 // Note: Unsure of what this does , but may be related to the play-dl lib (my notes are inconsistent)
 // play.authorization();
@@ -321,7 +322,7 @@ function fromMessage(bot, command, interaction) {
     //Setup data[1] = {info: yt_info, resource: resource}
     const guildId = interaction.guildId;
     let data = bot.audioData.get(guildId);
-    if (!data) { return interaction.reply("No music is currently playing!"); }
+    if (!data) { return intrep(interaction, "No music is currently playing!"); }
 
     const player = data[0];
     const message = interaction.channel.messages.cache.get(data[2]);
@@ -341,13 +342,13 @@ function fromMessage(bot, command, interaction) {
         if (connection) { connection.destroy(); }
 
         bot.audioData.delete(guildId);
-        interaction.reply("Audio stopped!");
+        intrep(interaction, "Audio stopped!");
         
     } else if (command == 'skip') {
         if (playNext(null, bot, message)) {
             rows = [];
             em.setDescription("IS NOW STOPPED");
-            interaction.reply("Audio stopped!");
+            intrep(interaction, "Audio stopped!");
         }
     } else if (command == 'pause' || command == 'resume') {
         interaction.deferReply();
@@ -363,10 +364,10 @@ function fromMessage(bot, command, interaction) {
 function showQueue(bot, isUpdate, interaction = null, page = 0) {
     const guild = interaction.guildId;
     const data = bot.audioData.get(guild);
-    if (!data) { return interaction.reply("The audio queue is empty!"); }
+    if (!data) { return intrep(interaction, "The audio queue is empty!"); }
 
     const rawQueue = data[1];
-    if (!rawQueue || rawQueue.length <= 0) { return interaction.reply("The audio queue is empty!"); }
+    if (!rawQueue || rawQueue.length <= 0) { return intrep(interaction, "The audio queue is empty!"); }
 
     const songList = [];
     var tenSongs = '';
@@ -421,10 +422,7 @@ function showQueue(bot, isUpdate, interaction = null, page = 0) {
     if (isUpdate) {
         interaction.update({embeds: [newEmbed], components: [row]});
     } else {
-        interaction.reply({ embeds: [newEmbed], components: [row] }).catch((err) => {
-            console.log(err);
-            interaction.channel.send({ embeds: [newEmbed], components: [row] });
-        });
+        intrep(interaction, { embeds: [newEmbed], components: [row] });
         
     }
 }
@@ -433,11 +431,11 @@ function showQueue(bot, isUpdate, interaction = null, page = 0) {
 function removeFromQueue(bot, interaction, posStr) {
     const guildId = interaction.guildId;
     let data = bot.audioData.get(guildId);
-    if (!data) { return interaction.reply("The audio queue is empty!"); }
+    if (!data) { return intrep(interaction, "The audio queue is empty!"); }
 
     const rawQueue = data[1];
-    if (!rawQueue || rawQueue.length <= 0) { return interaction.reply("The audio queue is empty!"); }
-    else if (isNaN(posStr) || Number(posStr) > rawQueue.length) { return interaction.reply("Please specify a number within queue bounds!"); }
+    if (!rawQueue || rawQueue.length <= 0) { return intrep(interaction, "The audio queue is empty!"); }
+    else if (isNaN(posStr) || Number(posStr) > rawQueue.length) { return intrep(interaction, "Please specify a number within queue bounds!"); }
 
     const pos = Number(posStr) - 1;
     const details = rawQueue[pos].yt_info.video_details;
@@ -454,10 +452,7 @@ function removeFromQueue(bot, interaction, posStr) {
     .setDescription( `has been removed from position ${pos + 1} in queue!`)
     .setThumbnail(details.thumbnails[0].url);
 
-    interaction.reply({ embeds: [newEmbed] }).catch((err) => {
-        interaction.channel.send({ embeds: [newEmbed] });
-        console.log(err);
-    })
+    intrep(interaction, { embeds: [newEmbed] });
 }
 
 
@@ -465,10 +460,10 @@ function removeFromQueue(bot, interaction, posStr) {
 function shuffleQueue(bot, interaction) {
     const guildId = interaction.guildId;
     let data = bot.audioData.get(guildId);
-    if (!data) { return interaction.reply("The audio queue is empty!"); }
+    if (!data) { return intrep(interaction, "The audio queue is empty!"); }
 
     let rawQueue = data[1];
-    if (!rawQueue || rawQueue.length <= 0) { return interaction.reply("The audio queue is empty!"); }
+    if (!rawQueue || rawQueue.length <= 0) { return intrep(interaction, "The audio queue is empty!"); }
 
     //Shuffle the queue
     rawQueue = rawQueue.sort(() => Math.random()-0.5);
@@ -477,10 +472,7 @@ function shuffleQueue(bot, interaction) {
 
     bot.audioData.set(guildId, data);
 
-    interaction.reply("The queue has been shuffled!\nThe new queue is:").catch((err) => {
-        console.log(err);
-        interaction.channel.send("The queue has been shuffled!\nThe new queue is:");
-    });
+    intrep(interaction, "The queue has been shuffled!\nThe new queue is:");
     
     showQueue(bot, false, interaction);
 }
@@ -511,7 +503,7 @@ module.exports = {
         } else if (commandList.indexOf(command.name) != -1) {
             return fromMessage(bot, command.name, interaction);
         } else if (command.name == 'remove') {
-            if (args.length < 2) { return interaction.reply("Please specify a position in queue!"); }
+            if (args.length < 2) { return intrep(interaction, "Please specify a position in queue!"); }
             return removeFromQueue(bot, interaction, args[1].value);
         } else if (command.name == 'shuffle') {
             return shuffleQueue(bot, interaction);
@@ -525,7 +517,7 @@ module.exports = {
         const channelId = interaction.guild.members.cache.get(interaction.user.id).voice.channelId;
 
         if (!channelId) {
-            interaction.reply("Please join a voice channel before you try this!");
+            intrep(interaction, "Please join a voice channel before you try this!");
             return;
         }
 
@@ -556,9 +548,7 @@ module.exports = {
                 const msg = (err == "Request failed with status code 400") ? "Invalid playlist URL" : "uh oh, there's been an error";
 
                 console.log(err);
-                interaction.reply(msg).catch((err) => {
-                    interaction.channel.send(msg);
-                });
+                intrep(interaction, msg);
             });
         } else {
             const url = subCommand.value;

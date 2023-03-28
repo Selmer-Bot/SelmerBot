@@ -1,5 +1,6 @@
 // https://ponly.com/200-pick-up-lines/
 const { ApplicationCommandOptionType } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 const cheesy = [
     'If I said you had a good body would you hold it against me?',
@@ -304,7 +305,7 @@ module.exports = {
         const arr = nameList.get(key);
         keyInd = Math.floor(Math.random() * arr.length);
         try {
-            interaction.reply(arr[keyInd]);
+            intrep(interaction, arr[keyInd]);
         } catch {
             interaction.channel.send(arr[keyInd]);
         }

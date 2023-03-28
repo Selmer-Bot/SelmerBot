@@ -1,4 +1,5 @@
 const { Interaction, ApplicationCommandOptionType } = require('discord.js');
+const { intrep } = require('../utils/discordUtils.js');
 const { encrypt, decrypt } = require('../utils/encryption.js');
 
 module.exports = {
@@ -12,7 +13,7 @@ module.exports = {
         if (command.name == "encrypt") {
             encrypt(command.options[0].value).then((data) => {
                 const str = `Encrypted Data: \`${data.encryptedData}\`\n\nEncryption Key: \`${data.iv}\``;
-                interaction.reply({content: str, ephemeral: true}).catch(() => {interaction.channel.send({content: str, ephemeral: true})});
+                intrep(interaction, {content: str, ephemeral: true});
             }).catch((err) => {
                 console.error(err);
                 message.channel.send("Uh oh! There's been an error! Please contact support \:[");
@@ -22,9 +23,7 @@ module.exports = {
             const encKey = command.options.filter((opt) => { return (opt.name == 'key'); })[0].value;
 
             decrypt({encryptedData: encData, iv:encKey}).then((data) => {
-                interaction.reply({content: `Your unencrypted data is: \`${data}\``, ephemeral: true}).catch(() => {
-                    interaction.channel.send({content: `Your unencrypted data is: \`${data}\``, ephemeral: true});
-                })
+                intrep(interaction, {content: `Your unencrypted data is: \`${data}\``, ephemeral: true});
             }).catch((err) => {
                 console.error(err);
                 message.channel.send("Uh oh! There's been an error! Please contact support \:[");

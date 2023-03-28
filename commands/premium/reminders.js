@@ -1,4 +1,5 @@
 const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Interaction } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 
 /**
@@ -50,11 +51,11 @@ function postEmbd(bot, desc, interaction, page, isGuild, id, refered) {
         if (page > 0 || refered) {
             interaction.update({ content: '_Note: To see a full list of reminder stats visit http://www.selmerbot.com _', embeds: [newEmbed], components: [row] });
         } else {
-            interaction.reply({ content: '_Note: To see a full list of reminder stats visit http://www.selmerbot.com _', embeds: [newEmbed], components: [row] });
+            intrep(interaction, { content: '_Note: To see a full list of reminder stats visit http://www.selmerbot.com _', embeds: [newEmbed], components: [row] });
         }
     } catch (err) {
         console.log(err);
-        return interaction.reply("Uh Oh! There's been an error!");
+        return intrep(interaction, "Uh Oh! There's been an error!");
     }
 }
 
@@ -141,7 +142,7 @@ function addEvent(obj, connection, interaction, embd) {
                             kbo.updateOne({ 'userId': Id }, { $push: { times: t } })
                         } else {
                             //Event already exists at this time
-                            return interaction.reply("An event already exists at this time!");
+                            return intrep(interaction, "An event already exists at this time!");
                         }
                     } else {
                         doc = { userId: Id, times: [t] }
@@ -166,24 +167,24 @@ function addEvent(obj, connection, interaction, embd) {
                         }
 
                         //Reply with the reminder in correct format
-                        interaction.reply({ content: "REMINDER SAVED!", embeds: [embd], ephemeral: true });
+                        intrep(interaction, { content: "REMINDER SAVED!", embeds: [embd], ephemeral: true });
                     }).catch((err) =>  {
                         console.log("ERR");
                         console.error(err);
-                        interaction.reply("Uh Oh! An error has occured!");
+                        intrep(interaction, "Uh Oh! An error has occured!");
                     });
                 } catch (err) {
-                    console.error(err); interaction.reply("Uh Oh! An error has occured!");
+                    console.error(err); intrep(interaction, "Uh Oh! An error has occured!");
                 }
             }).catch((err) =>  {
                 console.log("ERR");
                 console.error(err);
-                interaction.reply("Uh Oh! An error has occured!");
+                intrep(interaction, "Uh Oh! An error has occured!");
             });
         });
     } catch (err) {
         console.error(err);
-        return interaction.reply("Uh Oh! An error has occured!");
+        return intrep(interaction, "Uh Oh! An error has occured!");
     }
 }
 
@@ -214,7 +215,7 @@ function getEvents(bot, interaction, id, jpage = 0, isGuild = false, refered = f
                             return reject([true, "No events exist!"]);
                         }
 
-                        return interaction.reply("No events exist!");
+                        return intrep(interaction, "No events exist!");
                     }
 
                     times = doc.times;
@@ -255,7 +256,7 @@ function getEvents(bot, interaction, id, jpage = 0, isGuild = false, refered = f
                 if (isExport) {
                     return reject([false, err]);
                 }
-                return interaction.reply("Uh Oh! There's been an error!");
+                return intrep(interaction, "Uh Oh! There's been an error!");
             }
         });
     });
@@ -303,7 +304,7 @@ function processForm(bot, interaction) {
 
         //Process time
         var timesplit = timeTemp.split(' ').filter((inp) => { return(inp.indexOf(':') != -1); });
-        if (timesplit.length == 0) { return interaction.reply("Please enter a date in one of the following formats: _2:00 PM or 14:00_"); }
+        if (timesplit.length == 0) { return intrep(interaction, "Please enter a date in one of the following formats: _2:00 PM or 14:00_"); }
 
         timesplit = timesplit[0].split(":");
         timesplit[0] = Number(timesplit[0]);
@@ -322,7 +323,7 @@ function processForm(bot, interaction) {
         currentDate.setMinutes(currentDate.getMinutes() + 5);
 
         if (currentDate.getTime() >= (timeUTC)) {
-            return interaction.reply("Please enter a date at least 5 minutes in the future!");
+            return intrep(interaction, "Please enter a date at least 5 minutes in the future!");
         }
 
         temp = `***${name}*** is coming up in <t:${timeUTC/1000}:R> on <t:${timeUTC/1000}:F>`;
@@ -422,9 +423,9 @@ module.exports = {
                         );
                     }
 
-                    return interaction.reply({ content: 'Please select an action\n_Notes: Adding offset to an event is only supported on the website and personal reminders can be viewed in DM\'s_', components: [row], ephemeral: true });
+                    return intrep(interaction, { content: 'Please select an action\n_Notes: Adding offset to an event is only supported on the website and personal reminders can be viewed in DM\'s_', components: [row], ephemeral: true });
                 } else {
-                    interaction.reply("You have to be a premium subscriber to use this feature!\n_support coming soon_");
+                    intrep(interaction, "You have to be a premium subscriber to use this feature!\n_support coming soon_");
                 }
             });
         });

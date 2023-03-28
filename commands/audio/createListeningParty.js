@@ -1,5 +1,6 @@
 const {Interaction, ApplicationCommandOptionType, ChannelType, PermissionsBitField } = require('discord.js');
 const Discord = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 /**
  * @param {*} bot 
@@ -62,7 +63,7 @@ async function start(bot, interaction, command) {
         member.roles.add(role);
     });
 
-    interaction.reply({content: `Listening Party #${num} started!`, ephemeral: true});
+    intrep(interaction, `Listening Party #${num} started!`, true);
 }
 
 
@@ -88,7 +89,7 @@ function getKey(bot, interaction) {
  */
 async function add(bot, interaction, command) {
     const dne = !bot.listeningparties.has(interaction.guildId) || !bot.listeningparties.get(interaction.guildId).has(interaction.channel.id);
-    if (dne) { return interaction.reply({content: "Please try this in the voice channel chat!", ephemeral: true}); }
+    if (dne) { return intrep(interaction, "Please try this in the voice channel chat!", true); }
 
     const user = command.options[0].user;
 
@@ -103,7 +104,7 @@ console.log(obj);
 
     const member = interaction.guild.members.cache.get(user.id);
     member.roles.add(role);
-    interaction.reply({content: `${member} added to the listening party!`, ephemeral: true});
+    intrep(interaction, `${member} added to the listening party!`, true);
 }
 
 
@@ -115,7 +116,7 @@ console.log(obj);
  */
 async function remove(bot, interaction, command) {
     const dne = !bot.listeningparties.has(interaction.guildId) || !bot.listeningparties.get(interaction.guildId).has(interaction.channel.id);
-    if (dne) { return interaction.reply({content: "Please try this in the voice channel chat!", ephemeral: true}); }
+    if (dne) { return intrep(interaction, {content: "Please try this in the voice channel chat!", ephemeral: true}); }
 
     const user = command.options[0].user;
     const key = await getKey(bot, interaction);
@@ -124,7 +125,7 @@ async function remove(bot, interaction, command) {
     
     //Check if the person removing the role was the one to start the party
     if (obj.listeners[0] != interaction.user.id) {
-        return interaction.reply({content: "Only the person who started the thread can do this!", ephemeral: true});
+        return iintrep(interaction, {content: "Only the person who started the thread can do this!", ephemeral: true});
     }
 
     obj[1].listeners = obj[1].listeners.filter((uid) => (uid != user.id));
@@ -134,7 +135,7 @@ async function remove(bot, interaction, command) {
     const role = interaction.guild.roles.cache.get(obj[1].role);
     member.roles.remove(role);
 
-    interaction.reply(`Removed ${user} from the listening party!`);
+    intrep(interaction, `Removed ${user} from the listening party!`);
 }
 
 
@@ -145,7 +146,7 @@ async function remove(bot, interaction, command) {
  */
 async function end(bot, interaction) {
     const dne = !bot.listeningparties.has(interaction.guildId) || !bot.listeningparties.get(interaction.guildId).has(interaction.channel.id);
-    if (dne) { return interaction.reply({content: "Please try this in the voice channel chat!", ephemeral: true}); }
+    if (dne) { return intrep(interaction, {content: "Please try this in the voice channel chat!", ephemeral: true}); }
 
     const key = await getKey(bot, interaction);
     const obj = bot.listeningparties.get(interaction.guildId).get(key);

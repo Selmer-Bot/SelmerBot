@@ -4,6 +4,7 @@ const categoriesJSON = require('./json/trivia_categories.json').trivia_categorie
 const { decode } = require('html-entities');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { Interaction } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 
 const categories = new Map();
@@ -66,7 +67,7 @@ function startTrivia(interaction, m, time, bot) {
     
     interaction.channel.send({ content: `${question}\n(Type your answers below!)`, fetchReply: true })
         .then((message) => {
-            interaction.reply({content: `Trivia started by ${interaction.user}`});
+            intrep(interaction, {content: `Trivia started by ${interaction.user}`});
 
             const timeList = ['🔟', '9️⃣', '8️⃣', '7️⃣', '6️⃣', '5️⃣', '4️⃣', '3️⃣', '2️⃣', '1️⃣', '0️⃣' ];
             var i = 0;
@@ -117,7 +118,7 @@ module.exports = {
             });
             temp += '_Please copy and paste the FULL NAME if you want to use a category';
 
-            return interaction.reply(temp);
+            return intrep(interaction, temp);
         }
 
         if (args[1] && Array.from(categories.keys()).includes(args[1].value)) {

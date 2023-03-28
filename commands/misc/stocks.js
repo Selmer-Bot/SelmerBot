@@ -1,5 +1,5 @@
 const { ApplicationCommandOptionType, EmbedBuilder, Interaction } = require('discord.js');
-
+const { intrep } = require('../utils/discordUtils.js');
 const dateFns = require('date-fns');
 const { formatToTimeZone } = require('date-fns-timezone');
 const Alpaca = require('@alpacahq/alpaca-trade-api');
@@ -35,7 +35,7 @@ async function getStockData(bot, interaction, stock, type, after) {
                 )
             } else if (type) {
                 if (after) {
-                    return interaction.reply("Due to the markets not being open, there is no quote data available!");
+                    return intrep(interaction, "Due to the markets not being open, there is no quote data available!");
                 }
                 const lq = snapshot.LatestQuote;
                 embd.setTitle(`${stock} Latest Quote`)
@@ -61,14 +61,14 @@ async function getStockData(bot, interaction, stock, type, after) {
                     {name: 'Day Bar (Yesterday)', value: `Open Price: ${pdb.OpenPrice},\nClose Price: ${pdb.ClosePrice},\nHigh Price: ${pdb.HighPrice},\nLow Price: ${pdb.LowPrice},\nVolume: ${pdb.Volume},\nCount: ${pdb.TradeCount},\nVWAP: ${pdb.VWAP}`},
                 )
             } else {
-                return interaction.reply("The command format is: _/stocks <stock_name, 'hours'> <trade, quote, bars> [after]_");
+                return intrep(interaction, "The command format is: _/stocks <stock_name, 'hours'> <trade, quote, bars> [after]_");
             }
 
-            interaction.reply({embeds: [embd]});
-        })
+            intrep(interaction, {embeds: [embd]});
+        });
     } catch(err) {
         console.error(err);
-        interaction.reply("Uh Oh, there's been an error!");
+        intrep(interaction, "Uh Oh, there's been an error!");
     }
 }
 
@@ -92,14 +92,14 @@ function getData(bot, interaction) {
             if (clock.is_open || after) {
                 if (stock == 'hours') {
                     temp = `The markets opened at ${calendars[0].open} and will close at ${calendars[0].close} on ${date}.`;
-                    return interaction.reply(temp);
+                    return intrep(interaction, temp);
                 }
                 getStockData(bot, interaction, stock, type, after);
             } else {
                 // `The market is currently ${clock.is_open ? 'open.' : 'closed.'}`
                 //May be innacurate?
                 temp = `_The markets closed at \`${calendars[0].close}\` and will open again at \`${calendars[0].open}\` on \`${dateFns.format((new Date()).setDate(new Date().getDate() + 1), 'yyyy-MM-dd')}\`.\nTo get the last snapshot before market closure, add the \`after\` keyword to the end of your command (trade and bars ONLY), ex: /stocks GOOG bars after_`;
-                return interaction.reply(temp);
+                return intrep(interaction, temp);
             }
         });
     })

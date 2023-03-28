@@ -3,6 +3,7 @@ const { codeBlock, Interaction, ButtonBuilder, ButtonStyle, ActionRowBuilder } =
 const { CLIENT_ODBC } = require('mysql/lib/protocol/constants/client');
 const { time } = require('@discordjs/builders');
 const { welcome } = require('../admin/welcome.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 let currencySymbol = '$';
 
@@ -49,9 +50,7 @@ function CreateNewCollection(interaction, client, serverId, id, opponent = null,
                 social: {marriage: {married: false, partner: undefined, marriage_date: undefined, carryover: false}}
             });
 
-            interaction.reply({ content: txtInserted, ephemeral: true }).catch((err) => {
-                interaction.channel.send({ content: txtInserted, ephemeral: true });
-            });
+            intrep(interaction, { content: txtInserted, ephemeral: true });
         }
     });
 }
@@ -120,9 +119,7 @@ function addxp(bot, interaction, dbo, amt, xp_list, noPing = false) {
             }
         } else {
             if (!noPing) {
-                interaction.reply("You've already reached max level!").catch((err) => {
-                    interaction.channel.send("You've already reached max level!");
-                });
+                intrep(interaction, "You've already reached max level!");
             }
         }
 
@@ -133,12 +130,9 @@ function addxp(bot, interaction, dbo, amt, xp_list, noPing = false) {
 
 async function getBalance(dbo, interaction) {
     const doc = await dbo.findOne({"balance": {$exists: true}});
-    if (!doc) { return interaction.reply("Uh oh, you don't seem to be in my databases! Please try initializing first using `/inventory`"); }
+    if (!doc) { return intrep(interaction, "Uh oh, you don't seem to be in my databases! Please try initializing first using `/inventory`"); }
 
-    return interaction.reply({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${doc.balance}`, ephemeral: true})
-    .catch((err) => {
-        interaction.channel.send({content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${doc.balance}`, ephemeral: true});
-    });
+    return intrep(interaction, {content: `<@${interaction.user.id}>, your current balance is ${currencySymbol}${doc.balance}`, ephemeral: true});
 }
 
 
@@ -150,7 +144,7 @@ function rank(dbo, interaction, xp_list) {
         let needed = xp_list.get(next);
         
         const tempmsg = `<@${interaction.user.id}> you are currently at rank ${next-1} and have ${doc[0].xp}xp. You need ${needed - doc[0].xp} more xp to get to rank ${next}`;
-        interaction.reply({content: tempmsg, ephemeral: true}).catch(() => { interaction.channel.send({content: tempmsg, ephemeral: true}); });
+        intrep(interaction, {content: tempmsg, ephemeral: true});
     });
 }
 
@@ -165,22 +159,18 @@ function checkAndUpdateBal(dbo, item, interaction, amt) {
     return new Promise(function(resolve, reject) {
         dbo.find({"balance": {$exists: true}}).toArray(b = function(err, doc) {
             if (!String(doc)) {
-                interaction.reply("Your account doesn't exist, please contact the mods for support").catch(() => {
-                    interaction.channel.send("Your account doesn't exist, please contact the mods for support");
-                });
+                intrep(interaction,"Your account doesn't exist, please contact the mods for support");
                 return false;
             }
 
             const icost = amt * item.cost;
             if (doc[0].balance < icost) {
-                interaction.reply({content: "Insufficient funds!", ephemeral: true}).catch(() => { interaction.channel.send({content: "Insufficient funds!", ephemeral: true}); });
+                intrep(interaction, {content: "Insufficient funds!", ephemeral: true});
                 resolve(false);
             } else {
                 let temp = doc[0];
                 dbo.updateOne({balance: temp.balance, rank: temp.rank, lastdayworked: temp.lastdayworked}, { $set: { balance: doc[0].balance -= icost }});
-                interaction.reply(`You have bought ${item.name} for ${currencySymbol}${icost}!`).catch(() => {
-                    interaction.channel.send(`You have bought ${item.name} for ${currencySymbol}${icost}!`);
-                });
+                intrep(interaction, `You have bought ${item.name} for ${currencySymbol}${icost}!`);
                 resolve(true);
             }
         });
@@ -196,7 +186,7 @@ function buy(bot, interaction, dbo, shop, xp_list) {
     let amt = args.filter((arg) => { return (arg.name == 'amount'); })[0].value;
     let item = shop.filter(function (item) { return item.name.toLowerCase() == query.toLowerCase(); })[0];
 
-    if (!String(item)) { return interaction.reply("This item does not exist!").catch(() => { interaction.channel.send("This item does not exist!"); }); }
+    if (!String(item)) { return intrep(interaction, "This item does not exist!"); }
 
     checkAndUpdateBal(dbo, item, interaction, amt).then((success) => {
         //The message is handled in the CheckAndUpdateBal() function
@@ -229,9 +219,7 @@ function sell(bot, id, interaction, dbo, shop, xp_list) {
 
     let item = shop.filter(function (titem) { return titem.name.toLowerCase() == query.toLowerCase(); });
     if (!String(item)) {
-        return interaction.reply("This item does not exist!").catch((err) => {
-            interaction.channel.send("This item does not exist!");
-        });
+        return intrep(interaction, "This item does not exist!");
     }
 
     item[0] = {name: item[0].name, cost: item[0].cost, icon: item[0].icon, sect: item[0].sect};
@@ -260,14 +248,9 @@ function sell(bot, id, interaction, dbo, shop, xp_list) {
 
             addxp(bot, interaction, dbo, Math.ceil(functional_item.cost * 1.2), xp_list);
 
-            interaction.reply(`You've sold ${num} ${String(functional_item.name)} for ${currencySymbol}${amountSoldFor}`)
-            .catch((err) => {
-                interaction.channel.send(`You've sold ${num} ${String(functional_item.name)} for ${currencySymbol}${amountSoldFor}`);
-            });
+            intrep(interaction, `You've sold ${num} ${String(functional_item.name)} for ${currencySymbol}${amountSoldFor}`);
         } else {
-            interaction.reply("You don't own this item!").catch((err) => {
-                interaction.channel.send(`You've sold ${num} ${String(functional_item.name)} for ${currencySymbol}${amountSoldFor}`);
-            });
+            intrep(interaction, `You've sold ${num} ${String(functional_item.name)} for ${currencySymbol}${amountSoldFor}`);
         }
     });
 }
@@ -278,14 +261,10 @@ function work(bot, dbo, interaction, xp_list) {
     let date = fulldate.getDate();
     dbo.find({"lastdayworked": {$exists: true}}).toArray(function(err, doc) {
         if (!String(doc)) {
-            return interaction.reply("Your account doesn't exist, please contact the mods for support").catch((err) => {
-                interaction.channel.send("Your account doesn't exist, please contact the mods for support");
-            });
+            return intrep(interaction, "Your account doesn't exist, please contact the mods for support");
         }
         if (doc[0].lastdayworked == date) {//date
-            interaction.reply("You've already worked today, try again tomorrow!").catch((err) => {
-                interaction.channel.send("You've already worked today, try again tomorrow!");
-            });
+            intrep(interaction, "You've already worked today, try again tomorrow!");
         } else {
             //Amount to be paid
             let amt = 0;
@@ -296,9 +275,7 @@ function work(bot, dbo, interaction, xp_list) {
             dbo.updateOne({"balance": {$exists: true}}, { $set: { balance: doc[0].balance + amt, lastdayworked: date }});
 
             addxp(bot, interaction, dbo, xp_earned, xp_list);
-            interaction.reply(`<@${interaction.user.id}> worked and earned ${currencySymbol}${amt} and ${xp_earned} xp!`).catch((err) => {
-                interaction.channel.send(`<@${interaction.user.id}> worked and earned ${currencySymbol}${amt} and ${xp_earned} xp!`)
-            });
+            intrep(interaction, `<@${interaction.user.id}> worked and earned ${currencySymbol}${amt} and ${xp_earned} xp!`);
         }
     });
 }
@@ -314,9 +291,7 @@ function printInventory(dbo, interaction) {
         });
 
         if (tempstring == "") { tempstring += "You have nothing in your inventory!"; }
-        interaction.reply(tempstring).catch((err) => {
-            interaction.channel.send(tempstring);
-        });
+        intrep(interaction, tempstring);
     });
 }
 
@@ -335,7 +310,7 @@ function getShop(interaction, items, bot, fromBtn = false) {
             if (amt < (items.length / 9)) {
                 ind = Number(amt);
             } else {
-                return interaction.reply("That number is too large").catch(() => { interaction.channel.send("That number is too large"); });
+                return intrep(interaction, "That number is too large");
             }
         }
     } else {
@@ -375,13 +350,9 @@ function getShop(interaction, items, bot, fromBtn = false) {
     row.addComponents(prevbtn, nextbtn);
 
     if (!fromBtn) {
-        interaction.reply({content: newText, components: [row]}).catch(() => {
-            interaction.channel.send({content: newText, components: [row]});
-        });
+        intrep(interaction, {content: newText, components: [row]});
     } else {
-        interaction.update({content: newText, components: [row]}).catch(() => {
-            interaction.channel.send({content: newText, components: [row]});
-        });
+        intrep(interaction, {content: newText, components: [row]});
     }
 }
 
@@ -440,9 +411,7 @@ module.exports = {
             } else if (command == 'sell') {
                 sell(bot, id, interaction, dbo, items, xp_list);
             } else {
-                interaction.reply(`${command} is not a command`).catch((err) => {
-                    interaction.channel.send(`${command} is not a command`);
-                });
+                intrep(interaction, `${command} is not a command`);
             }
                 
         });

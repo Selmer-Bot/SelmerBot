@@ -1,5 +1,6 @@
 const { Interaction, ActionRowBuilder, EmbedBuilder, ModalBuilder, TextInputBuilder } = require('discord.js');
 const { checkRole } = require('../admin/verify.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 
 async function postForm(interaction) {
@@ -103,9 +104,9 @@ function postGiveawayMessage(bot, interaction, title, desc, dur, prize, winners)
     }
 
     if (!Number.isInteger(Number(time))) {
-        return interaction.reply("Please enter a valid time in the following format: 10[S, M, H, D]");
+        return intrep(interaction, "Please enter a valid time in the following format: 10[S, M, H, D]");
     } else if (!Number.isInteger(Number(winners))) {
-        return interaction.reply("Please enter a valid NUMBER of winners");
+        return intrep(interaction, "Please enter a valid NUMBER of winners");
     }
 
     const embd = new EmbedBuilder()
@@ -169,7 +170,7 @@ function postGiveawayMessage(bot, interaction, title, desc, dur, prize, winners)
             msg.edit({ embeds: [embd] });
         });        
         
-        interaction.reply({ content: 'Giveaway posted!', ephemeral: true });
+        intrep(interaction, { content: 'Giveaway posted!', ephemeral: true });
     });
 }
 

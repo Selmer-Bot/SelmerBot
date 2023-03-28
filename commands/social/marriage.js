@@ -1,4 +1,5 @@
 const { ApplicationCommandOptionType, Interaction, ActionRowBuilder, ButtonStyle, ButtonBuilder} = require('discord.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 
 /**
@@ -15,12 +16,12 @@ function marry(bot, interaction, command) {
 
         user_dbo.findOne(({"rank": {$exists: true}})).then((udoc) => {
             if (udoc.social.marriage.married) {
-                return interaction.reply(`....You're already married to ${other}`);
+                return intrep(interaction, `....You're already married to ${other}`);
             }
 
             other_dbo.findOne(({"rank": {$exists: true}})).then((odoc) => {
                 if (odoc.social.marriage.married) {
-                    return interaction.reply({content: "This user is already married!", ephemeral: true});
+                    return intrep(interaction, {content: "This user is already married!", ephemeral: true});
                 }
 
                 
@@ -73,9 +74,7 @@ function divorce(bot, interaction, command) {
 
         user_dbo.findOne(({"rank": {$exists: true}})).then((udoc) => {
             if (!udoc.social.marriage.married) {
-                return interaction.reply("But you're not even married....").catch(() => {
-                    interaction.channel.send("But you're not even married....");
-                });
+                return intrep(interaction, "But you're not even married....");
             }
 
             const other = interaction.guild.members.cache.get(udoc.social.marriage.partner);
@@ -94,9 +93,7 @@ function divorce(bot, interaction, command) {
                 gdbo.deleteOne({partners: { $all: [interaction.user.id, other.id]}});
             });
 
-            interaction.reply(`${interaction.user} has divorced ${other}!`).catch(() => {
-                interaction.channel.send(`${interaction.user} has divorced ${other}!`);
-            });
+            intrep(interaction, `${interaction.user} has divorced ${other}!`);
         });
     });
 }
@@ -124,9 +121,7 @@ function status(bot, interaction, commandGen) {
             mdb.findOne({partners: { $all: [interaction.user.id, other.id]}}).then((doc) => {
                 if (user.id == interaction.user.id) {
                     if (!udoc.social.marriage.married) {
-                        return interaction.reply("You aren't married!").catch(() => {
-                            interaction.channel.send("You aren't married!");
-                        });
+                        return intrep(interaction, "You aren't married!");
                     }
 
                     var txt = `You married ${other} ${mTimeStamp} on \`${mDate}\`.`;
@@ -137,9 +132,7 @@ function status(bot, interaction, commandGen) {
                         txt += " You do not share a bank account.";
                     }
 
-                    interaction.reply({content: txt, ephemeral: true}).catch(() => {
-                        interaction.channel.send({content: txt, ephemeral: true});
-                    });
+                    intrep(interaction, {content: txt, ephemeral: true});
                 } else if (udoc.social.marriage.partner == interaction.user.id) {
                     var txt = `${other} married you on \`${mDate}\`, ${mTimeStamp}.`;
 
@@ -149,17 +142,11 @@ function status(bot, interaction, commandGen) {
                         txt += " You do not share a bank account.";
                     }
 
-                    interaction.reply({content: txt, ephemeral: true}).catch(() => {
-                        interaction.channel.send({content: txt, ephemeral: true});
-                    });
+                    intrep(interaction, {content: txt, ephemeral: true});
                 } else if (udoc.private) {
-                    return interaction.reply({content: "This user has their profile set to private!", ephemeral: true}).catch(() => {
-                        interaction.channel.send({content: "This user has their profile set to private!", ephemeral: true});
-                    });
+                    return intrep(interaction, {content: "This user has their profile set to private!", ephemeral: true});
                 } else {
-                    interaction.reply({content: `${interaction.user} married ${other} ${mTimeStamp} on \`${mDate}\`.`, ephemeral: true}).catch(() => {
-                        interaction.channel.send({content: `${interaction.user} married ${other} ${mTimeStamp} on \`${mDate}\`.`, ephemeral: true});
-                    });
+                    intrep(interaction, {content: `${interaction.user} married ${other} ${mTimeStamp} on \`${mDate}\`.`, ephemeral: true});
                 }
             });
         });
@@ -183,9 +170,7 @@ function moveFunds(bot, interaction, commandGen) {
                 if (udoc.balance >= value) {
                     mdb.findOne({partners: {$all: [interaction.user.id, other.id]}}).then((doc) => {
                         if (!doc.joint_toggled) {
-                            return interaction.reply("Please enable the joint account using `/marriage joint_account toggle`").catch(() => {
-                                interaction.channel.send("Please enable the joint account using `/marriage joint_account toggle`");
-                            });
+                            return intrep(interaction, "Please enable the joint account using `/marriage joint_account toggle`");
                         }
 
                         mdb.updateOne({partners: {$all: [interaction.user.id, other.id]}}, {$set: {joint_amount: doc.joint_amount + value}});
@@ -195,23 +180,17 @@ function moveFunds(bot, interaction, commandGen) {
                         if (doc.private) {
                             toSend.ephemeral = true;
                         }
-                        interaction.reply(toSend).catch(() => {
-                            interaction.channel.send(toSend);
-                        });
+                        intrep(interaction, toSend);
 
                     });
                 } else {
                     console.log(udoc.balance);
-                    interaction.reply("Insufficient funds!").catch(() => {
-                        interaction.channel.send("Insufficient funds!");
-                    });
+                    intrep(interaction, "Insufficient funds!");
                 }
             } else {
                 mdb.findOne({partners: {$all: [interaction.user.id, other.id]}}).then((doc) => {
                     if (!doc.joint_toggled) {
-                        return interaction.reply("Please enable the joint account using `/marriage joint_account toggle`").catch(() => {
-                            interaction.channel.send("Please enable the joint account using `/marriage joint_account toggle`");
-                        });
+                        return intrep(interaction, "Please enable the joint account using `/marriage joint_account toggle`");
                     }
 
                     if (doc.joint_amount >= value) {
@@ -223,13 +202,9 @@ function moveFunds(bot, interaction, commandGen) {
                             toSend.ephemeral = true;
                         }
                         
-                        interaction.reply(toSend).catch(() => {
-                            interaction.channel.send(toSend);
-                        });
+                        iintrep(interaction, toSend);
                     } else {
-                        interaction.reply("Insufficient funds!").catch(() => {
-                            interaction.channel.send("Insufficient funds!");
-                        });
+                        intrep(interaction, "Insufficient funds!");
                     }
                 });
             }
@@ -249,9 +224,7 @@ function account(bot, interaction, command) {
             
             dbo.findOne({"rank": {$exists: true}}).then((udoc) => {
                 if (!udoc.social.marriage.married) {
-                    return interaction.reply("You can only open a joint account if you're married!").catch(() => {
-                        interaction.channel.send("You can only open a joint account if you're married!");
-                    });
+                    return intrep(interaction, "You can only open a joint account if you're married!");
                 }
     
                 const other = interaction.guild.members.cache.get(udoc.social.marriage.partner);
@@ -259,9 +232,7 @@ function account(bot, interaction, command) {
                 mdb.findOne({partners: { $all: [interaction.user.id, other.id]}}).then((mdoc) => {
                     if (act == "open") {
                         if (mdoc.joint_toggled) {
-                            return interaction.reply("You already have a joint account!").catch(() => {
-                                interaction.channel.send("You already have a joint account!");
-                            });
+                            return intrep(interaction, "You already have a joint account!");
                         }
     
                         const row = new ActionRowBuilder()
@@ -276,12 +247,10 @@ function account(bot, interaction, command) {
                             content: `${other}, ${interaction.user} wants to ***open*** a joint account, click the button below to confirm!`,
                             components: [row]
                         }
-                        interaction.reply(rep).catch(() => { interaction.channel.send(rep); });
+                        intrep(interaction, rep);
                     } else {
                         if (!mdoc.joint_toggled) {
-                            return interaction.reply("You don't have a joint account to close!").catch(() => {
-                                interaction.channel.send("You don't have a joint account to close!");
-                            });
+                            return intrep(interaction, "You don't have a joint account to close!");
                         }
     
                         const row = new ActionRowBuilder()
@@ -296,7 +265,7 @@ function account(bot, interaction, command) {
                             content: `${other}, ${interaction.user} wants to ***close*** a joint account, click the button below to confirm!`,
                             components: [row]
                         }
-                        interaction.reply(rep).catch(() => { interaction.channel.send(rep); });
+                        intrep(interaction, rep);
                     }
                 });
             });

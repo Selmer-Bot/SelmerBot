@@ -1,4 +1,5 @@
 const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
+const { intrep } = require('../utils/discordUtils');
 
 
 //!poll <name> <option 1, option 2> [option 3...option 10]
@@ -42,7 +43,7 @@ module.exports = {
 
         const m = interaction.channel.send({ embeds: [embd] });
         m.then((msg) => {
-            interaction.reply("Poll Posted!");
+            intrep(interaction, "Poll Posted!");
 
             for(let i = 0; i < args.length - 2; i ++) {
                 msg.react(timeList[i]);

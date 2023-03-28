@@ -4,6 +4,7 @@ const { verPremium } = require('../premium/verifyPremium.js');
 const { ICalParser, VCalendar, VEvent, VTodo, VAlarm } = require('cozy-ical');
 const { ApplicationCommandOptionType } = require('discord.js');
 const { getEvents } = require('./reminders.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 async function formatEvents(interaction, docs) {
 
@@ -44,10 +45,10 @@ function getAndFormatEvents(bot, interaction, isGuild, id) {
     }).catch((err) => {
         //This is a custom message
         if (err[0]) {
-            interaction.reply(err);
+            intrep(interaction, err);
         } else {
             console.log(err);
-            interaction.reply("Uh oh, there's been an error!");
+            intrep(interaction, "Uh oh, there's been an error!");
         }
     });
 }
@@ -65,7 +66,7 @@ module.exports = {
          await verPremium(bot, interaction.user.id).then(() => {
             getAndFormatEvents(bot, interaction, isGuild, id);
          }).catch(() => {
-            interaction.reply("You have to be a premium subscriber to use this feature!");
+            intrep(interaction, "You have to be a premium subscriber to use this feature!");
         });
     },
     options: [

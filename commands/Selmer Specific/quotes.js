@@ -1,3 +1,5 @@
+const { intrep } = require("../utils/discordUtils");
+
 module.exports = {
     name: 'quotes',
     description: "A public version of Extra Credit",
@@ -41,7 +43,7 @@ module.exports = {
             break;
         }
 
-        interaction.reply(dm);
+        intrep(interaction, dm);
     },
     options: []
 }

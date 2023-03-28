@@ -1,5 +1,6 @@
 const { Formatters, EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 const CoinGecko = require('coingecko-api');
+const { intrep } = require('../utils/discordUtils');
 const CoinGeckoClient = new CoinGecko();
 
 
@@ -31,7 +32,7 @@ module.exports = {
     async execute(interaction, Discord, Client, bot) {
         const args = interaction.options.data;
         if (args.length < 1 || args[0].value == 'help') {
-            return interaction.reply("Please specify at least one cryptocurrency (_ex: !crypto BTC_) or list all currencies (_!crypto list_)");
+            return intrep(interaction, "Please specify at least one cryptocurrency (_ex: !crypto BTC_) or list all currencies (_!crypto list_)");
         } else if (args[0].value == 'list') {
             try {
                 return new Promise((resolve, reject) => {
@@ -43,11 +44,11 @@ module.exports = {
                     
                     resolve(temp);
                 }).then((temp) => {
-                    interaction.reply({content: temp, ephemeral: true});
+                    intrep(interaction, {content: temp, ephemeral: true});
                 })
             } catch (err) {
                 console.error(err);
-                return interaction.reply("Uh Oh! There's been an error!");
+                return intrep(interaction, "Uh Oh! There's been an error!");
             }
         }
         
@@ -61,7 +62,7 @@ module.exports = {
             const temp = datacc.filter(t => t.base == args[0].value);
             const res = temp.length == 0 ? [] : temp[0];
 
-            if (!res.base) { return interaction.reply("Please specify a valid currency or use `/crypto list` to list all available currencies"); }
+            if (!res.base) { return intrep(interaction, "Please specify a valid currency or use `/crypto list` to list all available currencies"); }
             
             //price: res.last, symbol: base, trust score: trust_score
             var obj = coinlist.get(res.base.toLowerCase());
@@ -82,10 +83,10 @@ module.exports = {
                 .setTimestamp()
                 .setFooter({ text: 'Selmer Bot uses CoinGecko for cryptocurrency information'});
 
-                interaction.reply({ embeds: [embd] });
+                intrep(interaction, { embeds: [embd] });
         } catch (err) {
             console.error(err);
-            return interaction.reply("Uh Oh! There's been an error!");
+            return intrep(interaction, "Uh Oh! There's been an error!");
         }
     },
     options: [{name: 'query', description: 'Name or "list"', type: ApplicationCommandOptionType.String, required: true}]

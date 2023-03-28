@@ -2,6 +2,7 @@ const Discord = require('discord.js')
 const axios = require('axios')
 const cheerio = require('cheerio');
 const { URL } = require("url");
+const { intrep } = require('../utils/discordUtils.js');
 
 function isValidUrl(s) {
     try {
@@ -61,22 +62,22 @@ async function setPresence(bot, interaction) {
                 const t = (command.options.length > 2) ? command.options.filter((arg) => { return(arg.name == "display_name"); })[0].value : null;
 
                 handleStreamInp(bot, txt, t, interaction).then(() => {
-                    interaction.reply(`Set bot presence to _${type + sep + txt}_`);
+                    intrep(interaction, `Set bot presence to _${type + sep + txt}_`);
                 }).catch(() => {
-                    interaction.reply("Invalid URL").catch((err) => {
+                    intrep(interaction, "Invalid URL").catch((err) => {
                         interaction.channel.send("Invalid URL");
                     });
                 });
             } else {
                 bot.user.setActivity(txt, { type: type });
-                interaction.reply(`Set bot presence to _${type + sep + txt}_`);
+                intrep(interaction, `Set bot presence to _${type + sep + txt}_`);
             }
         }
     } else if (command.name == "setactivity") {
         const stat = command.options[0];
 
         bot.user.setStatus(stat.value);
-        interaction.reply(`Set bot status to ${stat.value}`);
+        intrep(interaction, `Set bot status to ${stat.value}`);
     }
 }
 

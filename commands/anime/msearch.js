@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const scraper = require('mal-scraper');
+const { intrep } = require('../utils/discordUtils');
 const search = scraper.search;
 const type = "manga";
 
@@ -36,27 +37,27 @@ module.exports = {
                         {name: 'Volumes:', value: data.vols || "N/A"}
                     );
                     
-                    interaction.reply({ embeds: [newEmbed] });
+                    intrep(interaction, { embeds: [newEmbed] });
                 } else if (style == "fancy") {
                     let temp = `The ${data.type} _${data.title}_ currently has ${data.vols} volumes with ${data.nbChapters} chapters, `;
                     temp += `running from _${data.startDate.replace(/-/g, "/")}_  to  _${data.endDate.replace(/-/g, "/")}_, and has a score of ${data.score} on MyAnimeList!\n`;
                     temp += `You can read more about _${data.title}_ at ${data.url}`;
 
-                    interaction.reply(temp);
+                    intrep(interaction, temp);
                 } else if (style == "summary") {
                     //Remove the "read more." at the end
                     let temp = data.shortDescription.slice(0, -10);
                     temp += ` _read more at_ ${data.url}`;
-                    return interaction.reply(temp);
+                    return intrep(interaction, temp);
                 } else {
-                    interaction.reply(`Unknown command, try using the format '${bot.prefix}msearch <manga name> [stats or fancy or summary]`);
+                    intrep(interaction, `Unknown command, try using the format '${bot.prefix}msearch <manga name> [stats or fancy or summary]`);
                 }
             });
         } catch (err) {
             if (err.message.indexOf('field values must be non-empty strings') != -1) {
-                interaction.reply(`Insufficient information on website!\nThe page can be found here: ${data.url}`);
+                intrep(interaction, `Insufficient information on website!\nThe page can be found here: ${data.url}`);
             } else {
-                const m = interaction.reply("Uh oh, an unknown error occured, click the ✅ to report this!");
+                const m = intrep(interaction, "Uh oh, an unknown error occured, click the ✅ to report this!");
                 
                 const { addComplaintButton } = require('../dev only/submitcomplaint');
                 m.then((msg) => {

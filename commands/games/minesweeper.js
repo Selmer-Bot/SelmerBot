@@ -1,7 +1,8 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction } = require('discord.js');
 const { winGame, loseGame, equipItem } = require('./external_game_functions.js');
 const wait = require('node:timers/promises').setTimeout;
-const { STATE } = require('../db/econ.js')
+const { STATE } = require('../db/econ.js');
+const { intrep } = require('../utils/discordUtils.js');
 
 function startGame(bot, channel, interaction, solo) {
     var args;
@@ -52,7 +53,7 @@ function startGame(bot, channel, interaction, solo) {
     }
 
     if (solo) {
-        interaction.reply(`${interaction.user} has started a solo game of Minesweeper!`);
+        intrep(interaction, `${interaction.user} has started a solo game of Minesweeper!`);
     }
 
     channel.send({ content: `SCORE: \`0\`\nTILES LEFT: \`25\``, components: componentlist });
@@ -206,9 +207,7 @@ function checkAndStartGame(bot, interaction, channel, solo = false) {
             try {
                 if (solo) {
                     if (doc.game != null) {
-                        return interaction.reply("You're already in a game!").catch((err) => {
-                            interaction.channel.send("You're already in a game!");
-                        });
+                        return intrep(interaction, "You're already in a game!");
                     }
 
                     dbo.updateOne({ "game": {$exists: true} }, { $set: { game: "minesweeper", state: STATE.FIGHTING }});

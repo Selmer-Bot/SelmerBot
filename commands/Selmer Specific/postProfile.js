@@ -1,3 +1,5 @@
+const { intrep } = require("../utils/discordUtils");
+
 module.exports = {
     name: "profile",
     description: "Posts a description of Monsieur Sleemer himself",
@@ -14,6 +16,6 @@ module.exports = {
             {name: '\t__Epithet 2__', value: "_There is no god, only logic_"}
         );
         
-        interaction.reply({ embeds: [newEmbed] });
+        intrep(interaction, { embeds: [newEmbed] });
     }, options: []
 }

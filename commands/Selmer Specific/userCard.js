@@ -2,6 +2,7 @@ const { Interaction, User } = require('discord.js');
 const { CreateNewCollection } = require('../db/econ');
 const sharp = require('sharp');
 const fetch = require('node-fetch');
+const { intrep } = require('../utils/discordUtils');
 
 
 /**
@@ -138,9 +139,7 @@ function showCard(bot, interaction) {
     const { targetUser } = interaction;
 
     if (targetUser.bot) {
-        return interaction.reply({content: "This user is a bot!", ephemeral: true}).catch(() => {
-            interaction.channel.send({content: "This user is a bot!", ephemeral: true});
-        });
+        return intrep(interaction, {content: "This user is a bot!", ephemeral: true});
     }
 
     bot.mongoconnection.then((client) => {
@@ -150,13 +149,11 @@ function showCard(bot, interaction) {
             if (!doc) {
                 return CreateNewCollection(interaction, client, interaction.guildId, targetUser.id);
             } else if (doc.private) {
-                return interaction.reply({content: "This user has their profile set to private!", ephemeral: true}).catch(() =>{
-                    interaction.channel.send({content: "This user has their profile set to private!", ephemeral: true})
-                })
+                return intrep(interaction, {content: "This user has their profile set to private!", ephemeral: true});
             }
 
             generateCard(bot, doc, targetUser).then((cardBuffer) => {
-                interaction.reply({files: [cardBuffer]});
+                intrep(interaction, {files: [cardBuffer]});
             }).catch((err) => { console.error(err); });
         });
     });

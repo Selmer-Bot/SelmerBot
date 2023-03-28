@@ -1,8 +1,10 @@
+const { intrep } = require("../utils/discordUtils");
+
 module.exports = {
     name: "test",
     description: "HI SELMER",
     execute(interaction, Discord, Client, bot) {
-        interaction.reply("HI SELMER!!!");
+        intrep(interaction, "HI SELMER!!!");
     },
     options: []
 }
